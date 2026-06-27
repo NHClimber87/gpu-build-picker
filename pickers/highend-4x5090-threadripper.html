@@ -1,0 +1,295 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>High-End 4× RTX 5090 — Threadripper AI Workstation</title>
+<style>
+  :root{
+    --bg:#0e1116; --panel:#161b22; --panel2:#1c2230; --line:#2a3240;
+    --txt:#e6edf3; --dim:#8b949e; --accent:#3fb950; --accent2:#58a6ff;
+    --warn:#d29922; --bad:#f85149;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--bg);color:var(--txt);font:14px/1.5 -apple-system,Segoe UI,Roboto,Helvetica,Arial,sans-serif}
+  header{padding:18px 22px;border-bottom:1px solid var(--line);background:linear-gradient(180deg,#11161d,#0e1116)}
+  h1{margin:0;font-size:20px;letter-spacing:.3px}
+  header .sub{color:var(--dim);font-size:12.5px;margin-top:4px}
+  .wrap{max-width:1180px;margin:0 auto;padding:18px 22px 60px}
+  .bar{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin:14px 0}
+  button{background:var(--panel2);color:var(--txt);border:1px solid var(--line);border-radius:7px;padding:7px 12px;cursor:pointer;font-size:13px}
+  button:hover{border-color:var(--accent2)}
+  button.primary{background:#1f6feb22;border-color:var(--accent2);color:#cfe3ff}
+  button.danger{color:var(--bad);border-color:#5a2a2a}
+  table{width:100%;border-collapse:collapse;background:var(--panel);border:1px solid var(--line);border-radius:10px;overflow:hidden}
+  th,td{padding:8px 10px;border-bottom:1px solid var(--line);text-align:left;vertical-align:middle}
+  th{background:var(--panel2);color:var(--dim);font-weight:600;font-size:12px;text-transform:uppercase;letter-spacing:.4px}
+  tr:last-child td{border-bottom:none}
+  input,textarea{background:#0d1117;color:var(--txt);border:1px solid var(--line);border-radius:6px;padding:6px 8px;font:inherit;width:100%}
+  input:focus,textarea:focus{outline:none;border-color:var(--accent2)}
+  input.num{text-align:right;width:90px}
+  td.name input{font-weight:600}
+  td.spec textarea{resize:vertical;min-height:34px;font-size:12.5px;color:var(--dim)}
+  td.ext{text-align:right;font-variant-numeric:tabular-nums;white-space:nowrap;font-weight:600}
+  td.act{white-space:nowrap}
+  .urlcell{display:flex;gap:6px;align-items:center}
+  .urlcell a{color:var(--accent2);text-decoration:none;font-size:12px;max-width:120px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  .urlcell a:hover{text-decoration:underline}
+  .mini{padding:4px 7px;font-size:12px}
+  .totals{margin-top:18px;margin-left:auto;width:360px;background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:14px 16px}
+  .totals .row{display:flex;justify-content:space-between;padding:5px 0;font-variant-numeric:tabular-nums}
+  .totals .row.grand{border-top:1px solid var(--line);margin-top:6px;padding-top:10px;font-size:18px;font-weight:700;color:var(--accent)}
+  .totals input.num{width:80px}
+  .note{font-size:12px;color:var(--dim);margin-top:6px}
+  .flag{color:var(--warn);font-size:11px;margin-top:3px}
+  .msg{font-size:11px;margin-top:3px;min-height:13px}
+  .msg.ok{color:var(--accent)} .msg.err{color:var(--bad)} .msg.work{color:var(--accent2)}
+  .legend{color:var(--dim);font-size:12px;margin:6px 0 0}
+  .legend b{color:var(--txt)}
+  @media print{
+    body{background:#fff;color:#000}
+    header,.bar,.act,.urlcell button,.msg{display:none!important}
+    table,.totals{border-color:#999}
+    th{background:#eee;color:#333}
+    input,textarea{border:none;background:transparent;color:#000}
+    a{color:#000}
+  }
+</style>
+</head>
+<body>
+<header>
+  <h1>High-End 4× RTX 5090 — Threadripper AI Workstation</h1>
+  <div class="sub">128GB VRAM · Threadripper 7960X · 256GB DDR5 ECC · all-new, money-no-object contrast to the used-3090 value builds · prices a 2026-06-26 snapshot — edit / autofill to refresh</div>
+</header>
+<div class="wrap">
+
+  <div class="bar">
+    <button class="primary" onclick="addRow()">+ Add item</button>
+    <button onclick="resetDefault()">↺ Reset to default</button>
+    <button onclick="copyMarkdown()">⧉ Copy as Markdown</button>
+    <button onclick="window.print()">⎙ Print / Save PDF</button>
+    <span id="saveState" class="note"></span>
+  </div>
+
+  <table id="tbl">
+    <thead>
+      <tr>
+        <th style="width:150px">Item</th>
+        <th>Spec / notes</th>
+        <th style="width:60px">Qty</th>
+        <th style="width:110px">Unit $</th>
+        <th style="width:150px">Source URL</th>
+        <th style="width:90px;text-align:right">Ext.</th>
+        <th style="width:40px"></th>
+      </tr>
+    </thead>
+    <tbody id="rows"></tbody>
+  </table>
+
+  <div class="totals">
+    <div class="row"><span>Subtotal</span><span id="subtotal">$0</span></div>
+    <div class="row"><span>Tax <input class="num mini" id="taxPct" type="number" step="0.1" value="8" oninput="recalc()">%</span><span id="taxAmt">$0</span></div>
+    <div class="row"><span>Shipping $<input class="num mini" id="shipAmt" type="number" step="1" value="0" oninput="recalc()"></span><span id="shipShow">$0</span></div>
+    <div class="row grand"><span>Grand total</span><span id="grand">$0</span></div>
+    <div class="note" id="budgetNote">Budget line: $<span id="budgetVal"></span> · <span id="headroom"></span></div>
+  </div>
+
+  <p class="legend"><b>Autofill from URL:</b> paste a product URL into an item's URL field and click <b>⤓</b>. Best-effort only — it reads <i>structured data</i> (schema.org/JSON-LD or OpenGraph price+title) through a public CORS proxy. Many stores don't expose it; if it can't read the page it says so and you type the price in. Never invents a number.</p>
+
+</div>
+
+<script>
+const DEFAULT_BOM = [
+  {
+    "name": "GPU (each)",
+    "spec": "RTX 5090 32GB ×4 = 128GB VRAM (Blackwell). June-2026 AIB street ~$2,900 (ASUS TUF) to $3,300.",
+    "qty": 4,
+    "price": 2999,
+    "url": "https://bestvaluegpu.com/history/new-and-used-rtx-5090-price-history-and-specs/",
+    "flag": "street price — high markup vs $1,999 MSRP"
+  },
+  {
+    "name": "CPU",
+    "spec": "AMD Threadripper 7960X (Zen4, 24c/48t, sTR5). Quad-channel+ DDR5, 88 PCIe 5.0 lanes — real x16 to every GPU.",
+    "qty": 1,
+    "price": 1400,
+    "url": "https://www.newegg.com/amd-ryzen-threadripper-7000-series-ryzen-threadripper-7960x-storm-peak-socket-str5-desktop-cpu-processor/p/N82E16819113804",
+    "flag": "avg ~$1,422 — varies"
+  },
+  {
+    "name": "Motherboard",
+    "spec": "TRX50 (sTR5). 4× PCIe 5.0 x16, 4-channel DDR5 RDIMM.",
+    "qty": 1,
+    "price": 700,
+    "url": "https://www.newegg.com/p/pl?d=TRX50+motherboard",
+    "flag": "est — verify"
+  },
+  {
+    "name": "RAM",
+    "spec": "256GB DDR5-5600 ECC RDIMM (4×64GB) — feeds CPU-offload of big-MoE experts.",
+    "qty": 1,
+    "price": 1400,
+    "url": "https://www.newegg.com/p/pl?d=64GB+DDR5+ECC+RDIMM",
+    "flag": "est — verify"
+  },
+  {
+    "name": "PSU",
+    "spec": "1600W 80+ Titanium (4× 5090 ≈ 2.3kW peak — may need dual-PSU or 240V).",
+    "qty": 1,
+    "price": 450,
+    "url": "https://www.newegg.com/p/pl?d=1600W+80+plus+titanium+psu",
+    "flag": "est — verify"
+  },
+  {
+    "name": "NVMe",
+    "spec": "4TB NVMe Gen5 (boot + model library).",
+    "qty": 1,
+    "price": 350,
+    "url": "https://www.newegg.com/p/pl?d=4TB+nvme+gen5+ssd",
+    "flag": "est — verify"
+  },
+  {
+    "name": "Case + cooling",
+    "spec": "Full-tower / open frame for 4× triple-slot 5090s + Threadripper AIO. Airflow is the hard part.",
+    "qty": 1,
+    "price": 600,
+    "url": "https://www.newegg.com/p/pl?d=full+tower+case",
+    "flag": "est — varies a lot"
+  }
+];
+const BUDGET = 0;
+const KEY = "priceit-high-end-4-rtx-5090-threadripper-ai-workstation";
+let bom = load();
+
+function load(){
+  try{const s=localStorage.getItem(KEY); if(s){const o=JSON.parse(s); if(o&&o.rows){ if(o.taxPct!=null)setLater('taxPct',o.taxPct); if(o.ship!=null)setLater('shipAmt',o.ship); return o.rows;}}}catch(e){}
+  return JSON.parse(JSON.stringify(DEFAULT_BOM));
+}
+function setLater(id,v){ const el=document.getElementById(id); if(el)el.value=v; }
+function persist(){ localStorage.setItem(KEY, JSON.stringify({rows:bom, taxPct:val('taxPct'), ship:val('shipAmt')})); flash(); }
+let plT; function persistLight(){clearTimeout(plT);plT=setTimeout(persist,300);}
+let flashT; function flash(){const e=document.getElementById('saveState'); e.textContent="✓ saved locally"; clearTimeout(flashT); flashT=setTimeout(()=>e.textContent="",1200);}
+function val(id){return parseFloat(document.getElementById(id).value)||0;}
+function money(n){return "$"+n.toLocaleString(undefined,{minimumFractionDigits:0,maximumFractionDigits:2});}
+
+function render(){
+  const tb=document.getElementById('rows'); tb.innerHTML="";
+  bom.forEach((r,i)=>{
+    const tr=document.createElement('tr');
+    const ext=(r.qty||0)*(r.price||0);
+    const link = r.url ? `<a href="${esc(r.url)}" target="_blank" rel="noopener" title="${esc(r.url)}">${esc(shortUrl(r.url))}</a>` : `<span class="note">—</span>`;
+    tr.innerHTML=`
+      <td class="name"><input value="${esc(r.name)}" oninput="upd(${i},'name',this.value)"></td>
+      <td class="spec"><textarea oninput="upd(${i},'spec',this.value)">${esc(r.spec)}</textarea></td>
+      <td><input class="num" type="number" step="1" value="${r.qty}" oninput="upd(${i},'qty',this.value)"></td>
+      <td><input class="num" type="number" step="0.01" value="${r.price}" oninput="upd(${i},'price',this.value)">${r.flag?'<div class="flag">⚠ '+esc(r.flag)+'</div>':''}</td>
+      <td>
+        <div class="urlcell">
+          ${link}
+          <button class="mini" title="Autofill from URL" onclick="autofill(${i})">⤓</button>
+        </div>
+        <input style="margin-top:4px;font-size:11px" placeholder="paste URL…" value="${esc(r.url)}" oninput="upd(${i},'url',this.value)">
+        <div class="msg" id="msg${i}"></div>
+      </td>
+      <td class="ext">${money(ext)}</td>
+      <td class="act"><button class="mini danger" onclick="delRow(${i})">✕</button></td>`;
+    tb.appendChild(tr);
+  });
+  recalc();
+}
+function esc(s){return (s==null?"":String(s)).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');}
+function shortUrl(u){try{const x=new URL(u);return x.hostname.replace(/^www\./,'')+(x.pathname.length>1?'/…':'');}catch(e){return u.slice(0,22)+'…';}}
+
+function upd(i,k,v){
+  bom[i][k]= (k==='qty'||k==='price')? (parseFloat(v)||0) : v;
+  if(k==='qty'||k==='price'){
+    const cell=document.querySelector('#rows tr:nth-child('+(i+1)+') td.ext');
+    if(cell) cell.textContent=money((bom[i].qty||0)*(bom[i].price||0));
+    recalc();
+  }
+  persistLight();
+}
+function addRow(){ bom.push({name:"New item",spec:"",qty:1,price:0,url:""}); render(); persist(); }
+function delRow(i){ bom.splice(i,1); render(); persist(); }
+function resetDefault(){ if(confirm("Reset to the default list? Your edits will be lost.")){ bom=JSON.parse(JSON.stringify(DEFAULT_BOM)); document.getElementById('taxPct').value=8; document.getElementById('shipAmt').value=0; render(); persist(); } }
+
+function recalc(){
+  let sub=0; bom.forEach(r=>sub+=(r.qty||0)*(r.price||0));
+  const tax=sub*val('taxPct')/100, ship=val('shipAmt'), grand=sub+tax+ship;
+  document.getElementById('subtotal').textContent=money(sub);
+  document.getElementById('taxAmt').textContent=money(tax);
+  document.getElementById('shipShow').textContent=money(ship);
+  document.getElementById('grand').textContent=money(grand);
+  if(BUDGET>0){
+    document.getElementById('budgetVal').textContent=BUDGET.toLocaleString();
+    const head=BUDGET-grand;
+    document.getElementById('headroom').innerHTML = head>=0
+      ? `<span style="color:var(--accent)">${money(head)} under</span>`
+      : `<span style="color:var(--bad)">${money(-head)} over</span>`;
+  } else { document.getElementById('budgetNote').style.display='none'; }
+  persistLight();
+}
+
+// ---- best-effort autofill: structured data only, via CORS proxy ----
+async function autofill(i){
+  const url=bom[i].url; const m=document.getElementById('msg'+i);
+  if(!url){m.className="msg err";m.textContent="enter a URL first";return;}
+  m.className="msg work"; m.textContent="reading…";
+  const proxies=[ u=>`https://r.jina.ai/${u}`, u=>`https://corsproxy.io/?url=${encodeURIComponent(u)}` ];
+  for(const px of proxies){
+    try{
+      const res=await fetch(px(url),{headers:{'Accept':'text/html,application/json'}});
+      if(!res.ok) continue;
+      const txt=await res.text();
+      const found=parseStructured(txt);
+      if(found && (found.price||found.name)){
+        if(found.name) bom[i].name=found.name.slice(0,40);
+        if(found.price){ bom[i].price=found.price; bom[i].flag=null; }
+        render();
+        const mm=document.getElementById('msg'+i);
+        mm.className="msg ok";
+        mm.textContent=`✓ ${found.name?('"'+found.name.slice(0,28)+'" '):''}${found.price?('$'+found.price):''} — verify`;
+        persist();
+        return;
+      }
+    }catch(e){}
+  }
+  m.className="msg err"; m.textContent="couldn't auto-read this URL — enter manually";
+}
+function parseStructured(html){
+  const blocks=[...html.matchAll(/<script[^>]+application\/ld\+json[^>]*>([\s\S]*?)<\/script>/gi)];
+  for(const b of blocks){
+    try{
+      let data=JSON.parse(b[1].trim());
+      const arr=Array.isArray(data)?data:(data['@graph']?data['@graph']:[data]);
+      for(const node of arr){
+        const t=node['@type'];
+        if(t==='Product'||(Array.isArray(t)&&t.includes('Product'))){
+          const offers=node.offers? (Array.isArray(node.offers)?node.offers[0]:node.offers):null;
+          const price=offers&&(offers.price||offers.lowPrice)? parseFloat(offers.price||offers.lowPrice):null;
+          return {name:node.name||null, price:price&&price>0?price:null};
+        }
+      }
+    }catch(e){}
+  }
+  const og=(p)=>{const m=html.match(new RegExp('<meta[^>]+(?:property|name)=["\']'+p+'["\'][^>]+content=["\']([^"\']+)','i'));return m?m[1]:null;};
+  const name=og('og:title');
+  let price=og('product:price:amount')||og('og:price:amount');
+  if(!price){const pm=html.match(/(?:Total price|Price)[:\s]*\$([\d,]+(?:\.\d{2})?)/i); if(pm) price=pm[1].replace(/,/g,'');}
+  price=price?parseFloat(String(price).replace(/[^0-9.]/g,'')):null;
+  return {name:name||null, price:(price&&price>0)?price:null};
+}
+
+function copyMarkdown(){
+  let sub=0; let md="| Item | Spec | Qty | Unit $ | Ext $ | Source |\n|---|---|---|---|---|---|\n";
+  bom.forEach(r=>{const ext=(r.qty||0)*(r.price||0);sub+=ext;
+    md+=`| ${r.name} | ${(r.spec||'').replace(/\n/g,' ').replace(/\|/g,'\\|')} | ${r.qty} | ${money(r.price)} | ${money(ext)} | ${r.url||'—'} |\n`;});
+  const tax=sub*val('taxPct')/100, ship=val('shipAmt');
+  md+=`\n**Subtotal:** ${money(sub)} · **Tax (${val('taxPct')}%):** ${money(tax)} · **Shipping:** ${money(ship)} · **Grand total:** ${money(sub+tax+ship)}\n`;
+  navigator.clipboard.writeText(md).then(()=>{const e=document.getElementById('saveState');e.textContent="✓ markdown copied";setTimeout(()=>e.textContent="",1500);});
+}
+
+render();
+</script>
+</body>
+</html>
