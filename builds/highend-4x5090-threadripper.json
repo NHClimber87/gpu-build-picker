@@ -1,12 +1,12 @@
 {
   "title": "High-End 4× RTX 5090 — Threadripper AI Workstation",
   "subtitle": "128GB VRAM · Threadripper 7960X · 256GB DDR5 ECC · all-new, money-no-object contrast to the used-3090 value builds · prices a 2026-06-26 snapshot — edit / autofill to refresh",
-  "tax_pct": 8, "shipping": 0, "budget": 0,
+  "tax_pct": 8, "shipping": 0, "budget": 0, "sys_bw_gbs": 179,
   "rows": [
-    {"name": "GPU (each)", "spec": "RTX 5090 32GB ×4 = 128GB VRAM (Blackwell). June-2026 AIB street ~$2,900 (ASUS TUF) to $3,300.", "qty": 4, "price": 2999, "url": "https://bestvaluegpu.com/history/new-and-used-rtx-5090-price-history-and-specs/", "flag": "street price — high markup vs $1,999 MSRP"},
+    {"name": "GPU (each)", "spec": "RTX 5090 32GB ×4 = 128GB VRAM (Blackwell). June-2026 AIB street ~$2,900 (ASUS TUF) to $3,300.", "qty": 4, "price": 2999, "url": "https://bestvaluegpu.com/history/new-and-used-rtx-5090-price-history-and-specs/", "flag": "street price — high markup vs $1,999 MSRP", "vram_gb": 32, "bw_gbs": 1792, "tflops": 210},
     {"name": "CPU", "spec": "AMD Threadripper 7960X (Zen4, 24c/48t, sTR5). Quad-channel+ DDR5, 88 PCIe 5.0 lanes — real x16 to every GPU.", "qty": 1, "price": 1400, "url": "https://www.newegg.com/amd-ryzen-threadripper-7000-series-ryzen-threadripper-7960x-storm-peak-socket-str5-desktop-cpu-processor/p/N82E16819113804", "flag": "avg ~$1,422 — varies"},
     {"name": "Motherboard", "spec": "TRX50 (sTR5). 4× PCIe 5.0 x16, 4-channel DDR5 RDIMM.", "qty": 1, "price": 700, "url": "https://www.newegg.com/p/pl?d=TRX50+motherboard", "flag": "est — verify"},
-    {"name": "RAM", "spec": "256GB DDR5-5600 ECC RDIMM (4×64GB) — feeds CPU-offload of big-MoE experts.", "qty": 1, "price": 1400, "url": "https://www.newegg.com/p/pl?d=64GB+DDR5+ECC+RDIMM", "flag": "est — verify"},
+    {"name": "RAM", "spec": "256GB DDR5-5600 ECC RDIMM (4×64GB) — feeds CPU-offload of big-MoE experts.", "qty": 1, "price": 1400, "url": "https://www.newegg.com/p/pl?d=64GB+DDR5+ECC+RDIMM", "flag": "est — verify", "ram_gb": 256},
     {"name": "PSU", "spec": "1600W 80+ Titanium (4× 5090 ≈ 2.3kW peak — may need dual-PSU or 240V).", "qty": 1, "price": 450, "url": "https://www.newegg.com/p/pl?d=1600W+80+plus+titanium+psu", "flag": "est — verify"},
     {"name": "NVMe", "spec": "4TB NVMe Gen5 (boot + model library).", "qty": 1, "price": 350, "url": "https://www.newegg.com/p/pl?d=4TB+nvme+gen5+ssd", "flag": "est — verify"},
     {"name": "Case + cooling", "spec": "Full-tower / open frame for 4× triple-slot 5090s + Threadripper AIO. Airflow is the hard part.", "qty": 1, "price": 600, "url": "https://www.newegg.com/p/pl?d=full+tower+case", "flag": "est — varies a lot"}

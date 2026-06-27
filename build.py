@@ -12,8 +12,12 @@ bom.json schema:
   "tax_pct":  8,                               # optional (default 0)
   "shipping": 0,                               # optional (default 0)
   "budget":   25000,                           # optional; 0/absent hides the budget line
+  "sys_bw_gbs": 90,                            # optional; system-RAM bandwidth (GB/s) for the capability calc
   "rows": [
-    {"name":"Item","spec":"notes","qty":1,"price":0,"url":"https://...","flag":"verify"}  # flag optional
+    {"name":"Item","spec":"notes","qty":1,"price":0,"url":"https://...","flag":"verify",
+     # optional hardware hints feed the Capability Estimator (per unit, x qty):
+     "vram_gb":24, "bw_gbs":936, "tflops":71,  # for GPU rows
+     "ram_gb":64}                               # for RAM rows
   ]
 }
 
@@ -46,6 +50,9 @@ def main():
         }
         if r.get("flag"):
             row["flag"] = r["flag"]
+        for hw in ("vram_gb", "bw_gbs", "tflops", "ram_gb"):  # carry hardware hints through
+            if r.get(hw):
+                row[hw] = r[hw]
         norm.append(row)
 
     tpl_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), "template.html")
@@ -58,6 +65,7 @@ def main():
         "__TAX__":      str(spec.get("tax_pct", spec.get("tax", 0))),
         "__SHIP__":     str(spec.get("shipping", 0)),
         "__BUDGET__":   str(spec.get("budget", 0) or 0),
+        "__SYSBW__":    str(spec.get("sys_bw_gbs", 0) or 0),
         "__KEY__":      "priceit-" + slug,
     }
     for k, v in repl.items():

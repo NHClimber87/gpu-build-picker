@@ -6,37 +6,40 @@
 <title>Budget 1× RTX 3090 — Local LLM Starter</title>
 <style>
   :root{
-    --bg:#0e1116; --panel:#161b22; --panel2:#1c2230; --line:#2a3240;
-    --txt:#e6edf3; --dim:#8b949e; --accent:#3fb950; --accent2:#58a6ff;
-    --warn:#d29922; --bad:#f85149;
+    /* green palette — emerald on near-black. Swap these to retheme. */
+    --bg:#0a0f0c; --panel:#0f1712; --panel2:#14201a; --line:#1f3a2b;
+    --txt:#e8f6ee; --dim:#80a991; --accent:#36e27b; --accent2:#7af2b0;
+    --warn:#e0b341; --bad:#ff6b6b; --glow:#36e27b33;
   }
   *{box-sizing:border-box}
-  body{margin:0;background:var(--bg);color:var(--txt);font:14px/1.5 -apple-system,Segoe UI,Roboto,Helvetica,Arial,sans-serif}
-  header{padding:18px 22px;border-bottom:1px solid var(--line);background:linear-gradient(180deg,#11161d,#0e1116)}
-  h1{margin:0;font-size:20px;letter-spacing:.3px}
+  body{margin:0;background:radial-gradient(1200px 600px at 70% -10%, #10221a 0%, var(--bg) 55%);color:var(--txt);font:14px/1.5 -apple-system,Segoe UI,Roboto,Helvetica,Arial,sans-serif}
+  header{padding:18px 22px;border-bottom:1px solid var(--line);background:linear-gradient(180deg,#0e1b14,#0a0f0c)}
+  h1{margin:0;font-size:20px;letter-spacing:.3px;color:#fff}
+  h1 .dot{color:var(--accent)}
   header .sub{color:var(--dim);font-size:12.5px;margin-top:4px}
   .wrap{max-width:1180px;margin:0 auto;padding:18px 22px 60px}
   .bar{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin:14px 0}
-  button{background:var(--panel2);color:var(--txt);border:1px solid var(--line);border-radius:7px;padding:7px 12px;cursor:pointer;font-size:13px}
-  button:hover{border-color:var(--accent2)}
-  button.primary{background:#1f6feb22;border-color:var(--accent2);color:#cfe3ff}
+  button{background:var(--panel2);color:var(--txt);border:1px solid var(--line);border-radius:7px;padding:7px 12px;cursor:pointer;font-size:13px;transition:border-color .15s,box-shadow .15s}
+  button:hover{border-color:var(--accent);box-shadow:0 0 0 3px var(--glow)}
+  button.primary{background:linear-gradient(180deg,#1c8f51,#15683b);border-color:var(--accent);color:#eafff3;font-weight:600}
   button.danger{color:var(--bad);border-color:#5a2a2a}
   table{width:100%;border-collapse:collapse;background:var(--panel);border:1px solid var(--line);border-radius:10px;overflow:hidden}
   th,td{padding:8px 10px;border-bottom:1px solid var(--line);text-align:left;vertical-align:middle}
-  th{background:var(--panel2);color:var(--dim);font-weight:600;font-size:12px;text-transform:uppercase;letter-spacing:.4px}
+  th{background:var(--panel2);color:var(--accent2);font-weight:600;font-size:12px;text-transform:uppercase;letter-spacing:.4px}
   tr:last-child td{border-bottom:none}
-  input,textarea{background:#0d1117;color:var(--txt);border:1px solid var(--line);border-radius:6px;padding:6px 8px;font:inherit;width:100%}
-  input:focus,textarea:focus{outline:none;border-color:var(--accent2)}
+  input,textarea,select{background:#08120c;color:var(--txt);border:1px solid var(--line);border-radius:6px;padding:6px 8px;font:inherit;width:100%}
+  input:focus,textarea:focus,select:focus{outline:none;border-color:var(--accent);box-shadow:0 0 0 3px var(--glow)}
   input.num{text-align:right;width:90px}
   td.name input{font-weight:600}
   td.spec textarea{resize:vertical;min-height:34px;font-size:12.5px;color:var(--dim)}
-  td.ext{text-align:right;font-variant-numeric:tabular-nums;white-space:nowrap;font-weight:600}
+  td.ext{text-align:right;font-variant-numeric:tabular-nums;white-space:nowrap;font-weight:600;color:var(--accent2)}
   td.act{white-space:nowrap}
   .urlcell{display:flex;gap:6px;align-items:center}
   .urlcell a{color:var(--accent2);text-decoration:none;font-size:12px;max-width:120px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
   .urlcell a:hover{text-decoration:underline}
   .mini{padding:4px 7px;font-size:12px}
-  .totals{margin-top:18px;margin-left:auto;width:360px;background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:14px 16px}
+  .panels{display:flex;flex-wrap:wrap;gap:18px;margin-top:18px;align-items:flex-start}
+  .totals{margin-left:auto;width:340px;background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:14px 16px}
   .totals .row{display:flex;justify-content:space-between;padding:5px 0;font-variant-numeric:tabular-nums}
   .totals .row.grand{border-top:1px solid var(--line);margin-top:6px;padding-top:10px;font-size:18px;font-weight:700;color:var(--accent)}
   .totals input.num{width:80px}
@@ -46,19 +49,42 @@
   .msg.ok{color:var(--accent)} .msg.err{color:var(--bad)} .msg.work{color:var(--accent2)}
   .legend{color:var(--dim);font-size:12px;margin:6px 0 0}
   .legend b{color:var(--txt)}
+  /* capability estimator */
+  .calc{flex:1;min-width:430px;background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:0;overflow:hidden}
+  .calc h2{margin:0;padding:12px 16px;font-size:14px;background:var(--panel2);color:var(--accent2);border-bottom:1px solid var(--line);letter-spacing:.3px}
+  .calc .body{padding:14px 16px}
+  .hwgrid{display:grid;grid-template-columns:repeat(2,1fr);gap:8px 14px;margin-bottom:12px}
+  .hwgrid label{font-size:11px;color:var(--dim);display:block;text-transform:uppercase;letter-spacing:.3px}
+  .hwgrid .val{display:flex;align-items:center;gap:6px}
+  .hwgrid input{width:100%}
+  .pick{display:flex;gap:8px;margin:10px 0}
+  .pick select{flex:1}
+  .scorebox{display:flex;align-items:center;gap:16px;margin-top:12px;padding:12px;border:1px solid var(--line);border-radius:8px;background:#0b1610}
+  .score{font-size:40px;font-weight:800;line-height:1;min-width:96px;text-align:center}
+  .score small{display:block;font-size:11px;font-weight:600;color:var(--dim);margin-top:4px;text-transform:uppercase}
+  .verdict{flex:1;font-size:13px}
+  .verdict .fit{font-weight:700;font-size:15px;margin-bottom:4px}
+  .stat{display:flex;justify-content:space-between;font-variant-numeric:tabular-nums;padding:2px 0;border-bottom:1px dashed var(--line)}
+  .stat:last-child{border-bottom:none}
+  .stat b{color:var(--accent2)}
+  .bargrid{margin-top:10px}
+  .barrow{display:flex;align-items:center;gap:8px;margin:4px 0;font-size:12px}
+  .barrow .lab{width:130px;color:var(--dim)}
+  .bar{flex:1;height:8px;background:#0b1610;border:1px solid var(--line);border-radius:5px;overflow:hidden}
+  .bar > i{display:block;height:100%;background:linear-gradient(90deg,#15683b,var(--accent))}
   @media print{
     body{background:#fff;color:#000}
-    header,.bar,.act,.urlcell button,.msg{display:none!important}
-    table,.totals{border-color:#999}
+    header,.bar,.act,.urlcell button,.msg,.calc .pick,button{display:none!important}
+    table,.totals,.calc{border-color:#999}
     th{background:#eee;color:#333}
-    input,textarea{border:none;background:transparent;color:#000}
+    input,textarea,select{border:none;background:transparent;color:#000}
     a{color:#000}
   }
 </style>
 </head>
 <body>
 <header>
-  <h1>Budget 1× RTX 3090 — Local LLM Starter</h1>
+  <h1>Budget 1× RTX 3090 — Local LLM Starter<span class="dot"> ●</span></h1>
   <div class="sub">24GB VRAM · the cheapest sane way into local LLMs · runs 27-35B models well, 70B quantized · prices a 2026-06-26 snapshot — edit / autofill to refresh</div>
 </header>
 <div class="wrap">
@@ -86,12 +112,60 @@
     <tbody id="rows"></tbody>
   </table>
 
-  <div class="totals">
-    <div class="row"><span>Subtotal</span><span id="subtotal">$0</span></div>
-    <div class="row"><span>Tax <input class="num mini" id="taxPct" type="number" step="0.1" value="8" oninput="recalc()">%</span><span id="taxAmt">$0</span></div>
-    <div class="row"><span>Shipping $<input class="num mini" id="shipAmt" type="number" step="1" value="0" oninput="recalc()"></span><span id="shipShow">$0</span></div>
-    <div class="row grand"><span>Grand total</span><span id="grand">$0</span></div>
-    <div class="note" id="budgetNote">Budget line: $<span id="budgetVal"></span> · <span id="headroom"></span></div>
+  <div class="panels">
+
+    <!-- ===== Capability estimator ===== -->
+    <div class="calc">
+      <h2>🧮 Local-LLM Capability Estimator</h2>
+      <div class="body">
+        <div class="hwgrid">
+          <div><label>Total VRAM (GB)</label><div class="val"><input class="num" id="hwVram" type="number" oninput="capCalc()"></div></div>
+          <div><label>System RAM (GB)</label><div class="val"><input class="num" id="hwRam" type="number" oninput="capCalc()"></div></div>
+          <div><label>Per-GPU bandwidth (GB/s)</label><div class="val"><input class="num" id="hwBw" type="number" oninput="capCalc()"></div></div>
+          <div><label>System-RAM bandwidth (GB/s)</label><div class="val"><input class="num" id="hwSysBw" type="number" oninput="capCalc()"></div></div>
+          <div><label>GPUs</label><div class="val"><input class="num" id="hwNgpu" type="number" oninput="capCalc()"></div></div>
+          <div><label>Aggregate FP16 (TFLOPS)</label><div class="val"><input class="num" id="hwTflops" type="number" oninput="capCalc()"></div></div>
+        </div>
+        <div class="pick">
+          <select id="mdl" onchange="capCalc()"></select>
+          <select id="quant" onchange="capCalc()">
+            <option value="4.5">Q4 (~4.5 bpw)</option>
+            <option value="5.5">Q5 (~5.5 bpw)</option>
+            <option value="6.5">Q6 (~6.5 bpw)</option>
+            <option value="8.5">Q8 (~8.5 bpw)</option>
+            <option value="16">FP16 (16 bpw)</option>
+          </select>
+        </div>
+
+        <div class="scorebox">
+          <div class="score" id="scoreVal" style="color:var(--accent)">–<small>capability</small></div>
+          <div class="verdict">
+            <div class="fit" id="capFit">—</div>
+            <div class="stat"><span>Model resident size</span><b id="capSize">—</b></div>
+            <div class="stat"><span>Est. decode (1 user)</span><b id="capDec">—</b></div>
+            <div class="stat"><span>Est. prefill</span><b id="capPre">—</b></div>
+          </div>
+        </div>
+
+        <div class="bargrid">
+          <div class="barrow"><span class="lab">VRAM capacity</span><span class="bar"><i id="barVram"></i></span></div>
+          <div class="barrow"><span class="lab">Decode speed</span><span class="bar"><i id="barSpeed"></i></span></div>
+        </div>
+
+        <p class="note" id="capNote"></p>
+        <p class="note" style="font-size:11px">Rough estimates. Decode is modeled as memory-bandwidth-bound and calibrated to measured single-RTX-3090 numbers (27B≈40, 35B-A3B≈87, 70B≈18, 120B-A12B≈12 t/s). Multi-GPU decode ≈ per-card bandwidth (pipeline-parallel; tensor-parallel without NVLink is comms-bound). Spill to system RAM drops you toward system-RAM bandwidth. Prefill scales with FP16 TFLOPS.</p>
+      </div>
+    </div>
+
+    <!-- ===== Cost totals ===== -->
+    <div class="totals">
+      <div class="row"><span>Subtotal</span><span id="subtotal">$0</span></div>
+      <div class="row"><span>Tax <input class="num mini" id="taxPct" type="number" step="0.1" value="8" oninput="recalc()">%</span><span id="taxAmt">$0</span></div>
+      <div class="row"><span>Shipping $<input class="num mini" id="shipAmt" type="number" step="1" value="0" oninput="recalc()"></span><span id="shipShow">$0</span></div>
+      <div class="row grand"><span>Grand total</span><span id="grand">$0</span></div>
+      <div class="note" id="budgetNote">Budget line: $<span id="budgetVal"></span> · <span id="headroom"></span></div>
+    </div>
+
   </div>
 
   <p class="legend"><b>Autofill from URL:</b> paste a product URL into an item's URL field and click <b>⤓</b>. Best-effort only — it reads <i>structured data</i> (schema.org/JSON-LD or OpenGraph price+title) through a public CORS proxy. Many stores don't expose it; if it can't read the page it says so and you type the price in. Never invents a number.</p>
@@ -106,7 +180,10 @@ const DEFAULT_BOM = [
     "qty": 1,
     "price": 1050,
     "url": "https://bestvaluegpu.com/history/new-and-used-rtx-3090-price-history-and-specs/",
-    "flag": "used market — shop around"
+    "flag": "used market — shop around",
+    "vram_gb": 24,
+    "bw_gbs": 936,
+    "tflops": 71
   },
   {
     "name": "CPU",
@@ -130,7 +207,8 @@ const DEFAULT_BOM = [
     "qty": 1,
     "price": 160,
     "url": "https://www.newegg.com/p/pl?d=64GB+DDR5+6000",
-    "flag": "est — verify"
+    "flag": "est — verify",
+    "ram_gb": 64
   },
   {
     "name": "PSU",
@@ -158,8 +236,20 @@ const DEFAULT_BOM = [
   }
 ];
 const BUDGET = 2200;
+const SYS_BW = 96;   // build-level system-RAM bandwidth hint (GB/s), 0 if unknown
 const KEY = "priceit-budget-1-rtx-3090-local-llm-starter";
 let bom = load();
+
+// model presets: gbtok = empirical GB moved per token at Q4 on a single 3090 (encodes arch overhead)
+const MODELS = [
+  {id:"7b",    label:"7–8B dense",        total:7.5, active:7.5, gbtok:5.6},
+  {id:"14b",   label:"14B dense",         total:14,  active:14,  gbtok:10.5},
+  {id:"27b",   label:"27–32B dense",      total:29,  active:29,  gbtok:23.4},
+  {id:"35a3",  label:"35B-A3B MoE",       total:35,  active:3,   gbtok:10.8},
+  {id:"70b",   label:"70B dense",         total:70,  active:70,  gbtok:52},
+  {id:"120a12",label:"120B-A12B MoE",     total:120, active:12,  gbtok:78},
+  {id:"235a22",label:"235B-A22B MoE",     total:235, active:22,  gbtok:120},
+];
 
 function load(){
   try{const s=localStorage.getItem(KEY); if(s){const o=JSON.parse(s); if(o&&o.rows){ if(o.taxPct!=null)setLater('taxPct',o.taxPct); if(o.ship!=null)setLater('shipAmt',o.ship); return o.rows;}}}catch(e){}
@@ -206,12 +296,13 @@ function upd(i,k,v){
     const cell=document.querySelector('#rows tr:nth-child('+(i+1)+') td.ext');
     if(cell) cell.textContent=money((bom[i].qty||0)*(bom[i].price||0));
     recalc();
+    if(k==='qty') deriveHw();   // qty change shifts VRAM/RAM totals
   }
   persistLight();
 }
-function addRow(){ bom.push({name:"New item",spec:"",qty:1,price:0,url:""}); render(); persist(); }
-function delRow(i){ bom.splice(i,1); render(); persist(); }
-function resetDefault(){ if(confirm("Reset to the default list? Your edits will be lost.")){ bom=JSON.parse(JSON.stringify(DEFAULT_BOM)); document.getElementById('taxPct').value=8; document.getElementById('shipAmt').value=0; render(); persist(); } }
+function addRow(){ bom.push({name:"New item",spec:"",qty:1,price:0,url:""}); render(); deriveHw(); persist(); }
+function delRow(i){ bom.splice(i,1); render(); deriveHw(); persist(); }
+function resetDefault(){ if(confirm("Reset to the default list? Your edits will be lost.")){ bom=JSON.parse(JSON.stringify(DEFAULT_BOM)); document.getElementById('taxPct').value=8; document.getElementById('shipAmt').value=0; render(); deriveHw(); persist(); } }
 
 function recalc(){
   let sub=0; bom.forEach(r=>sub+=(r.qty||0)*(r.price||0));
@@ -229,6 +320,76 @@ function recalc(){
   } else { document.getElementById('budgetNote').style.display='none'; }
   persistLight();
 }
+
+// ---- capability estimator ----
+function deriveHw(){
+  let vram=0, ram=0, tflops=0, ngpu=0, bwMax=0;
+  bom.forEach(r=>{
+    const q=r.qty||0;
+    if(r.vram_gb){ vram+=r.vram_gb*q; ngpu+=q; if(r.bw_gbs) bwMax=Math.max(bwMax,r.bw_gbs); }
+    if(r.tflops) tflops+=r.tflops*q;
+    if(r.ram_gb) ram+=r.ram_gb*q;
+  });
+  setIf('hwVram',vram); setIf('hwRam',ram); setIf('hwTflops',Math.round(tflops));
+  setIf('hwNgpu',ngpu); setIf('hwBw',bwMax||0); setIf('hwSysBw',SYS_BW||0);
+  capCalc();
+}
+// auto-fill a hw field only until the user edits it (then leave their value alone)
+function setIf(id,v){ const el=document.getElementById(id); if(el && el.dataset.auto!=='0'){ el.value=v; } }
+['hwVram','hwRam','hwBw','hwSysBw','hwNgpu','hwTflops'].forEach(id=>{
+  const el=document.getElementById(id);
+  if(el) el.addEventListener('input',()=>{ el.dataset.auto='0'; });
+});
+
+function capCalc(){
+  const m=MODELS.find(x=>x.id===document.getElementById('mdl').value)||MODELS[3];
+  const bpw=parseFloat(document.getElementById('quant').value)||4.5;
+  const vram=val('hwVram'), ram=val('hwRam'), perCardBw=val('hwBw'), sysBw=val('hwSysBw')||40, tflops=val('hwTflops');
+  const resident = m.total*bpw/8;                // GB to hold the weights (params in B × bytes)
+  const gbtok = m.gbtok*(bpw/4.5);               // bytes moved per token, quant-scaled
+  document.getElementById('capSize').textContent = resident.toFixed(0)+" GB @ Q"+(bpw|0);
+
+  // fit
+  let fit, fitColor, effBw, note="";
+  const usableVram=vram*0.92, usableTotal=(vram+ram)*0.9;
+  if(resident<=usableVram){
+    fit="✓ Fits in VRAM"; fitColor="var(--accent)"; effBw=perCardBw||936;
+    note="Whole model on the GPU(s). Best case.";
+  } else if(resident<=usableTotal){
+    fit="◐ Spills to system RAM"; fitColor="var(--warn)";
+    const inV=Math.max(0,usableVram)/resident, sp=1-inV;
+    effBw = 1/((inV/(perCardBw||936))+(sp/sysBw));   // blended; collapses toward sysBw
+    note="Part of the model lives in system RAM — decode is dragged toward RAM bandwidth ("+sysBw.toFixed(0)+" GB/s). MoE models tolerate this far better than dense.";
+  } else {
+    fit="✗ Won't fit"; fitColor="var(--bad)"; effBw=0;
+    note="Needs more VRAM+RAM than this build has. Drop the quant, pick a smaller / MoE model, or add memory.";
+  }
+  document.getElementById('capFit').textContent=fit;
+  document.getElementById('capFit').style.color=fitColor;
+
+  // decode (memory-bound) + prefill (compute-bound)
+  let dec=0, pre=0;
+  if(effBw>0){
+    dec = effBw/gbtok;
+    if(tflops>0) pre = (tflops*1e12)/(2*m.total*1e9)*0.30; // ~30% MFU
+  }
+  document.getElementById('capDec').textContent = effBw>0 ? dec.toFixed(0)+" tok/s" : "—";
+  document.getElementById('capPre').textContent = pre>0 ? pre.toFixed(0)+" tok/s" : "—";
+
+  // score: 60% VRAM capacity, 40% decode speed (log-curved)
+  const vramScore = vram>0 ? clamp(55+11.7*(Math.log2(vram)-4.585),0,100) : 0;
+  const speedScore = dec>0 ? clamp(30+18*Math.log2(dec/10),0,100) : 0;
+  const score = Math.round(0.6*vramScore+0.4*speedScore);
+  const sEl=document.getElementById('scoreVal');
+  sEl.innerHTML = (resident>usableTotal? "—" : score)+'<small>capability</small>';
+  sEl.style.color = score>=85?'#7af2b0':score>=70?'var(--accent)':score>=50?'#bfe66a':'var(--warn)';
+  document.getElementById('barVram').style.width=vramScore.toFixed(0)+'%';
+  document.getElementById('barSpeed').style.width=speedScore.toFixed(0)+'%';
+
+  const tier = score>=85?"Elite — runs frontier-class local models fast":score>=70?"Strong — comfortable with big MoE / 70B":score>=50?"Solid — great for 27–35B daily drivers":"Entry — best with ≤14B or aggressive quants";
+  document.getElementById('capNote').textContent = (resident>usableTotal? note : tier+". "+note);
+}
+function clamp(x,a,b){return Math.max(a,Math.min(b,x));}
 
 // ---- best-effort autofill: structured data only, via CORS proxy ----
 async function autofill(i){
@@ -289,7 +450,12 @@ function copyMarkdown(){
   navigator.clipboard.writeText(md).then(()=>{const e=document.getElementById('saveState');e.textContent="✓ markdown copied";setTimeout(()=>e.textContent="",1500);});
 }
 
+// init model dropdown
+const mdlSel=document.getElementById('mdl');
+MODELS.forEach(m=>{const o=document.createElement('option');o.value=m.id;o.textContent=m.label;mdlSel.appendChild(o);});
+mdlSel.value="35a3";
 render();
+deriveHw();
 </script>
 </body>
 </html>
