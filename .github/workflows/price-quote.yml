@@ -1,0 +1,60 @@
+name: Community price quote
+
+# A buyer submits a price they paid via the in-page 💬 button, which opens a prefilled,
+# price-quote-labeled issue. This validates it, folds corroborated quotes into catalog.json,
+# regenerates the pickers, and comments + labels accepted/rejected + closes. Zero standing
+# backend — it only runs on the labeled-issue event.
+
+on:
+  issues:
+    types: [opened, labeled]
+
+permissions:
+  contents: write
+  issues: write
+
+jobs:
+  ingest:
+    if: contains(github.event.issue.labels.*.name, 'price-quote')
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.x'
+
+      - name: Parse + validate the quote
+        id: ingest
+        env:
+          ISSUE_BODY: ${{ github.event.issue.body }}
+          ISSUE_NUMBER: ${{ github.event.issue.number }}
+        run: python3 scripts/ingest-quote.py
+
+      - name: Validate catalog (schema-guardian)
+        run: python3 validate.py
+
+      - name: Regenerate + commit if the catalog changed
+        run: |
+          if [ -n "$(git status --porcelain)" ]; then
+            bash generate-all.sh
+            git config user.name  "github-actions[bot]"
+            git config user.email "github-actions[bot]@users.noreply.github.com"
+            git add -A
+            git commit -m "Community price quote: ${{ github.event.issue.title }} (#${{ github.event.issue.number }})"
+            git push
+          else
+            echo "No catalog change (rejected or advisory-only)."
+          fi
+
+      - name: Comment, label, and close
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const verdict = `${{ steps.ingest.outputs.verdict }}` || 'error';
+            const message = `${{ steps.ingest.outputs.message }}` || 'Could not process this quote.';
+            const issue_number = context.issue.number;
+            const {owner, repo} = context.repo;
+            await github.rest.issues.createComment({owner, repo, issue_number, body: message});
+            const label = verdict === 'accepted' ? 'quote-accepted' : 'quote-rejected';
+            await github.rest.issues.addLabels({owner, repo, issue_number, labels: [label]});
+            await github.rest.issues.update({owner, repo, issue_number, state: 'closed'});

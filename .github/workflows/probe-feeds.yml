@@ -1,0 +1,20 @@
+name: Probe price feeds (measure before building)
+
+# Throwaway diagnostic: curls candidate price aggregators from THIS runner's IP and
+# reports which return a parseable price. The point is to turn "PCPartPicker/Geizhals
+# are fetchable" from an ASSUMPTION into a measured fact before wiring any feed into
+# update-prices.py. Manual-dispatch only; mutates nothing. (Phase 3, step 0.)
+
+on:
+  workflow_dispatch: {}
+
+jobs:
+  probe:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.x'
+      - name: Probe candidate feeds from the runner IP
+        run: python3 scripts/probe-feeds.py

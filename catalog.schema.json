@@ -1,0 +1,117 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://github.com/NHClimber87/gpu-build-picker/catalog.schema.json",
+  "title": "gpu-build-picker catalog",
+  "description": "Single source of truth: a standardized parts catalog with provenance-stamped price records, plus builds expressed as part_id lists. The automated price path may mutate ONLY price records — never specs, never ids. Enforced by validate.py (dependency-free); this schema is the human-readable contract.",
+  "type": "object",
+  "required": ["schema_version", "parts", "builds"],
+  "additionalProperties": true,
+  "properties": {
+    "schema_version": {"type": "integer", "minimum": 1},
+    "generated": {"type": "string"},
+    "note": {"type": "string"},
+    "parts": {"type": "array", "items": {"$ref": "#/$defs/part"}},
+    "builds": {"type": "array", "items": {"$ref": "#/$defs/build"}}
+  },
+  "$defs": {
+    "category": {
+      "description": "Closed enum. Extend deliberately (validate.py mirrors this list).",
+      "enum": ["gpu", "cpu", "motherboard", "ram", "psu", "storage", "case", "accessory"]
+    },
+    "confidence": {"enum": ["low", "medium", "high"]},
+    "method": {
+      "description": "How a price datum was obtained.",
+      "enum": ["gpupoet", "manual", "hardcoded-estimate", "deal-as-bought", "crowdsource", "build-override"]
+    },
+    "specs": {
+      "description": "Closed spec vocabulary. The capability estimator reads ONLY these; a missing key is 'unknown', never 0.",
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "vram_gb": {"type": "number"},
+        "bw_gbs": {"type": "number"},
+        "tflops": {"type": "number"},
+        "ram_gb": {"type": "number"}
+      }
+    },
+    "source": {
+      "type": "object",
+      "required": ["value", "sourced_at", "method", "confidence"],
+      "additionalProperties": true,
+      "properties": {
+        "url": {"type": "string"},
+        "value": {"type": "number", "minimum": 0},
+        "sourced_at": {"type": "string", "pattern": "^\\d{4}-\\d{2}-\\d{2}$"},
+        "method": {"$ref": "#/$defs/method"},
+        "confidence": {"$ref": "#/$defs/confidence"}
+      }
+    },
+    "price": {
+      "description": "A price record. value is the displayed number; sources carry provenance. estimated=true paints as an estimate; never fabricate a sourced price.",
+      "type": "object",
+      "required": ["value", "estimated", "sources"],
+      "additionalProperties": true,
+      "properties": {
+        "value": {"type": "number", "minimum": 0},
+        "estimated": {"type": "boolean"},
+        "sources": {"type": "array", "items": {"$ref": "#/$defs/source"}},
+        "note": {"type": "string"},
+        "history": {
+          "description": "Weekly median ring buffer for the sparkline: [{week, value}].",
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": ["week", "value"],
+            "properties": {"week": {"type": "string"}, "value": {"type": "number"}}
+          }
+        }
+      }
+    },
+    "part": {
+      "type": "object",
+      "required": ["id", "category", "name", "specs", "price"],
+      "additionalProperties": false,
+      "properties": {
+        "id": {"type": "string", "pattern": "^[a-z0-9][a-z0-9-]*$", "description": "IMMUTABLE, append-only."},
+        "category": {"$ref": "#/$defs/category"},
+        "name": {"type": "string"},
+        "spec": {"type": "string", "description": "Human description (not a closed-vocab spec)."},
+        "note": {"type": "string", "description": "Usage caveat carried from the original row flag."},
+        "specs": {"$ref": "#/$defs/specs"},
+        "price": {"$ref": "#/$defs/price"}
+      }
+    },
+    "buildItem": {
+      "type": "object",
+      "required": ["part_id", "qty"],
+      "additionalProperties": false,
+      "properties": {
+        "part_id": {"type": "string"},
+        "qty": {"type": "number", "minimum": 0},
+        "spec": {"type": "string", "description": "Build-specific description override."},
+        "note": {"type": "string", "description": "Build-specific caption."},
+        "price_override": {
+          "description": "Freeze a build-local price (e.g. an as-bought deal). Full price record, or a bare number.",
+          "oneOf": [{"$ref": "#/$defs/price"}, {"type": "number"}]
+        }
+      }
+    },
+    "build": {
+      "type": "object",
+      "required": ["id", "name", "items"],
+      "additionalProperties": false,
+      "properties": {
+        "id": {"type": "string", "pattern": "^[a-z0-9][a-z0-9-]*$"},
+        "name": {"type": "string"},
+        "subtitle": {"type": "string"},
+        "menu": {"type": "string"},
+        "tax_pct": {"type": "number"},
+        "shipping": {"type": "number"},
+        "budget": {"type": "number"},
+        "sys_bw_gbs": {"type": "number"},
+        "snapshot_date": {"type": "string"},
+        "items": {"type": "array", "items": {"$ref": "#/$defs/buildItem"}}
+      }
+    }
+  }
+}

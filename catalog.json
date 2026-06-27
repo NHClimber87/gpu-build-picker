@@ -1,0 +1,861 @@
+{
+  "schema_version": 1,
+  "repo": "NHClimber87/gpu-build-picker",
+  "generated": "2026-06-26",
+  "note": "Single source of truth for gpu-build-picker. parts = standardized catalog with provenance-stamped price records; builds = part_id lists. The cron mutates only price records (never specs, never ids). See catalog.schema.json.",
+  "parts": [
+    {
+      "id": "gpu-rtx3090",
+      "category": "gpu",
+      "name": "NVIDIA RTX 3090 24GB (used)",
+      "spec": "The value king for local AI. June-2026 used market avg ~$1,050.",
+      "specs": {
+        "vram_gb": 24,
+        "bw_gbs": 936,
+        "tflops": 71
+      },
+      "note": "Used market — varies; shop around.",
+      "price": {
+        "value": 1126,
+        "estimated": false,
+        "sources": [
+          {
+            "url": "https://gpupoet.com/gpu/learn/price/june-2026/nvidia-geforce-rtx-3090",
+            "value": 1126,
+            "sourced_at": "2026-06-01",
+            "method": "gpupoet",
+            "confidence": "medium"
+          },
+          {
+            "url": "https://gpupoet.com/gpu/learn/price/may-2026/nvidia-geforce-rtx-3090",
+            "value": 998,
+            "sourced_at": "2026-05-01",
+            "method": "gpupoet",
+            "confidence": "medium"
+          },
+          {
+            "url": "https://gpupoet.com/gpu/learn/price/april-2026/nvidia-geforce-rtx-3090",
+            "value": 1088,
+            "sourced_at": "2026-04-01",
+            "method": "gpupoet",
+            "confidence": "medium"
+          }
+        ],
+        "history": [
+          {
+            "week": "2026-06-26",
+            "value": 1126
+          }
+        ]
+      }
+    },
+    {
+      "id": "gpu-rtx3090-ti",
+      "category": "gpu",
+      "name": "NVIDIA RTX 3090 Ti 24GB (used)",
+      "spec": "Slightly faster than the FE (1008 GB/s).",
+      "specs": {
+        "vram_gb": 24,
+        "bw_gbs": 1008,
+        "tflops": 80
+      },
+      "note": "Used market — varies.",
+      "price": {
+        "value": 1845,
+        "estimated": false,
+        "sources": [
+          {
+            "url": "https://gpupoet.com/gpu/learn/price/may-2026/nvidia-geforce-rtx-3090-ti",
+            "value": 1845,
+            "sourced_at": "2026-05-01",
+            "method": "gpupoet",
+            "confidence": "medium"
+          },
+          {
+            "url": "https://gpupoet.com/gpu/learn/price/april-2026/nvidia-geforce-rtx-3090-ti",
+            "value": 1799,
+            "sourced_at": "2026-04-01",
+            "method": "gpupoet",
+            "confidence": "medium"
+          }
+        ],
+        "history": [
+          {
+            "week": "2026-06-26",
+            "value": 1845
+          }
+        ]
+      }
+    },
+    {
+      "id": "gpu-rtx-pro-6000",
+      "category": "gpu",
+      "name": "NVIDIA RTX PRO 6000 Blackwell 96GB GDDR7",
+      "spec": "96GB GDDR7 ECC, 1,792 GB/s, 24,064 CUDA cores, 600W. Frontier models fully resident.",
+      "specs": {
+        "vram_gb": 96,
+        "bw_gbs": 1792,
+        "tflops": 250
+      },
+      "price": {
+        "value": 8500,
+        "estimated": true,
+        "sources": [
+          {
+            "url": "https://www.newegg.com/nvidia-blackwell-rtx-pro-6000-96gb-graphic-card/p/N82E16814132106",
+            "value": 8500,
+            "sourced_at": "2026-06-26",
+            "method": "hardcoded-estimate",
+            "confidence": "low"
+          }
+        ],
+        "note": "Street ~$8-9.2k; NVIDIA list $13,250 — verify."
+      }
+    },
+    {
+      "id": "gpu-rtx5090",
+      "category": "gpu",
+      "name": "NVIDIA RTX 5090 32GB GDDR7",
+      "spec": "32GB GDDR7, 1,792 GB/s. Tracked by the price cron (not used in a reference build yet).",
+      "specs": {
+        "vram_gb": 32,
+        "bw_gbs": 1792,
+        "tflops": 209
+      },
+      "price": {
+        "value": 3658,
+        "estimated": false,
+        "sources": [
+          {
+            "url": "https://gpupoet.com/gpu/learn/price/may-2026/nvidia-geforce-rtx-5090",
+            "value": 3658,
+            "sourced_at": "2026-05-01",
+            "method": "gpupoet",
+            "confidence": "medium"
+          },
+          {
+            "url": "https://gpupoet.com/gpu/learn/price/april-2026/nvidia-geforce-rtx-5090",
+            "value": 3657,
+            "sourced_at": "2026-04-01",
+            "method": "gpupoet",
+            "confidence": "medium"
+          }
+        ],
+        "history": [
+          {
+            "week": "2026-06-26",
+            "value": 3658
+          }
+        ]
+      }
+    },
+    {
+      "id": "cpu-ryzen-7-7700",
+      "category": "cpu",
+      "name": "AMD Ryzen 7 7700",
+      "spec": "Zen4, 8c/16t, AM5, 65W — efficient.",
+      "specs": {},
+      "price": {
+        "value": 270,
+        "estimated": true,
+        "sources": [
+          {
+            "url": "https://www.newegg.com/p/pl?d=AMD+Ryzen+7+7700",
+            "value": 270,
+            "sourced_at": "2026-06-26",
+            "method": "hardcoded-estimate",
+            "confidence": "low"
+          }
+        ]
+      }
+    },
+    {
+      "id": "cpu-ryzen-9-9900x",
+      "category": "cpu",
+      "name": "AMD Ryzen 9 9900X",
+      "spec": "Zen5, 12c/24t, AM5.",
+      "specs": {},
+      "price": {
+        "value": 329,
+        "estimated": false,
+        "sources": [
+          {
+            "url": "https://www.amazon.com/AMD-RyzenTM-9900X-24-Thread-Processor/dp/B0D6NN87T8",
+            "value": 329,
+            "sourced_at": "2026-06-26",
+            "method": "manual",
+            "confidence": "medium"
+          }
+        ]
+      }
+    },
+    {
+      "id": "cpu-epyc-7543",
+      "category": "cpu",
+      "name": "AMD EPYC 7543",
+      "spec": "Zen3 Milan, 32c, DDR4-3200.",
+      "specs": {},
+      "price": {
+        "value": 940,
+        "estimated": true,
+        "sources": [
+          {
+            "url": "https://www.newegg.com/p/pl?d=EPYC+7543",
+            "value": 940,
+            "sourced_at": "2026-06-26",
+            "method": "hardcoded-estimate",
+            "confidence": "low"
+          }
+        ]
+      }
+    },
+    {
+      "id": "cpu-threadripper-7960x",
+      "category": "cpu",
+      "name": "AMD Threadripper 7960X",
+      "spec": "Zen4, 24c/48t, sTR5. 88 PCIe 5.0 lanes — real x16 to every GPU.",
+      "specs": {},
+      "price": {
+        "value": 1099,
+        "estimated": false,
+        "sources": [
+          {
+            "url": "https://www.microcenter.com/product/674310/amd-ryzen-threadripper-7960x-storm-peak-42ghz-24-core-str5-boxed-processor-heatsink-not-included",
+            "value": 1099,
+            "sourced_at": "2026-06-26",
+            "method": "manual",
+            "confidence": "medium"
+          }
+        ]
+      }
+    },
+    {
+      "id": "mb-b650-am5",
+      "category": "motherboard",
+      "name": "B650 AM5 motherboard",
+      "spec": "PCIe 5.0 x16 slot; pick one with good VRM.",
+      "specs": {},
+      "price": {
+        "value": 150,
+        "estimated": true,
+        "sources": [
+          {
+            "url": "https://www.newegg.com/p/pl?d=B650+motherboard+am5",
+            "value": 150,
+            "sourced_at": "2026-06-26",
+            "method": "hardcoded-estimate",
+            "confidence": "low"
+          }
+        ]
+      }
+    },
+    {
+      "id": "mb-msi-b840-am5",
+      "category": "motherboard",
+      "name": "MSI B840 GAMING PLUS WIFI (AM5)",
+      "spec": "Budget board; GPUs run on x1/x4/x16 mix — fine for pipeline/expert-parallel.",
+      "specs": {},
+      "price": {
+        "value": 180,
+        "estimated": true,
+        "sources": [
+          {
+            "url": "https://www.newegg.com/p/pl?d=MSI+B840+GAMING+PLUS+WIFI",
+            "value": 180,
+            "sourced_at": "2026-06-26",
+            "method": "hardcoded-estimate",
+            "confidence": "low"
+          }
+        ]
+      }
+    },
+    {
+      "id": "mb-trx50",
+      "category": "motherboard",
+      "name": "TRX50 (sTR5) motherboard",
+      "spec": "4x PCIe 5.0 x16, 4-channel DDR5 RDIMM.",
+      "specs": {},
+      "price": {
+        "value": 700,
+        "estimated": true,
+        "sources": [
+          {
+            "url": "https://www.newegg.com/p/pl?d=TRX50+motherboard",
+            "value": 700,
+            "sourced_at": "2026-06-26",
+            "method": "hardcoded-estimate",
+            "confidence": "low"
+          }
+        ]
+      }
+    },
+    {
+      "id": "ram-ddr5-64gb-6000",
+      "category": "ram",
+      "name": "64GB DDR5-6000 (2x32GB)",
+      "spec": "Headroom for CPU offload of big-MoE experts.",
+      "specs": {
+        "ram_gb": 64
+      },
+      "price": {
+        "value": 160,
+        "estimated": true,
+        "sources": [
+          {
+            "url": "https://www.newegg.com/p/pl?d=64GB+DDR5+6000",
+            "value": 160,
+            "sourced_at": "2026-06-26",
+            "method": "hardcoded-estimate",
+            "confidence": "low"
+          }
+        ]
+      }
+    },
+    {
+      "id": "ram-corsair-cmk192-ddr5",
+      "category": "ram",
+      "name": "192GB DDR5 Corsair CMK192GX5M4B5200C38 (4x48GB)",
+      "spec": "5200-rated, OC'd to 5600.",
+      "specs": {
+        "ram_gb": 192
+      },
+      "price": {
+        "value": 560,
+        "estimated": true,
+        "sources": [
+          {
+            "url": "https://www.newegg.com/p/pl?d=CMK192GX5M4B5200C38",
+            "value": 560,
+            "sourced_at": "2026-06-26",
+            "method": "hardcoded-estimate",
+            "confidence": "low"
+          }
+        ]
+      }
+    },
+    {
+      "id": "ram-ddr4-3200-ecc-64gb-rdimm",
+      "category": "ram",
+      "name": "64GB DDR4-3200 ECC RDIMM",
+      "spec": "1 DIMM/channel (full 3200). 16x = 1TB with 16 slots free for a future 2TB.",
+      "specs": {
+        "ram_gb": 64
+      },
+      "price": {
+        "value": 399,
+        "estimated": true,
+        "sources": [
+          {
+            "url": "https://www.newegg.com/p/pl?d=64GB+DDR4-3200+ECC+RDIMM",
+            "value": 399,
+            "sourced_at": "2026-06-26",
+            "method": "hardcoded-estimate",
+            "confidence": "low"
+          }
+        ]
+      }
+    },
+    {
+      "id": "ram-ddr5-256gb-ecc-rdimm",
+      "category": "ram",
+      "name": "256GB DDR5-5600 ECC RDIMM kit (4x64GB)",
+      "spec": "Feeds CPU-offload of big-MoE experts.",
+      "specs": {
+        "ram_gb": 256
+      },
+      "price": {
+        "value": 2400,
+        "estimated": true,
+        "sources": [
+          {
+            "url": "https://www.neweggbusiness.com/product/product.aspx?item=9b-1x5-003z-01fm5",
+            "value": 2400,
+            "sourced_at": "2026-06-26",
+            "method": "hardcoded-estimate",
+            "confidence": "low"
+          }
+        ],
+        "note": "VOLATILE — DDR5 server RDIMM is in a 2026 price crisis; a 256GB kit ranged ~$1.4k-$7k across listings. Verify a live kit."
+      }
+    },
+    {
+      "id": "psu-850w-gold",
+      "category": "psu",
+      "name": "850W 80+ Gold PSU",
+      "spec": "3090 spikes hard; don't go below 850W.",
+      "specs": {},
+      "price": {
+        "value": 110,
+        "estimated": true,
+        "sources": [
+          {
+            "url": "https://www.newegg.com/p/pl?d=850W+80+plus+gold+psu",
+            "value": 110,
+            "sourced_at": "2026-06-26",
+            "method": "hardcoded-estimate",
+            "confidence": "low"
+          }
+        ]
+      }
+    },
+    {
+      "id": "psu-1200w-platinum",
+      "category": "psu",
+      "name": "1200W 80+ Platinum PSU",
+      "spec": "4x 200W-capped 3090s = ~800W GPU under load.",
+      "specs": {},
+      "price": {
+        "value": 220,
+        "estimated": true,
+        "sources": [
+          {
+            "url": "https://www.newegg.com/p/pl?d=1200W+80+plus+platinum+psu",
+            "value": 220,
+            "sourced_at": "2026-06-26",
+            "method": "hardcoded-estimate",
+            "confidence": "low"
+          }
+        ]
+      }
+    },
+    {
+      "id": "psu-2000w-titanium-redundant",
+      "category": "psu",
+      "name": "2000W 80+ Titanium redundant PSU",
+      "spec": "Supermicro PWS-2K04A-1R. ~3.1kW peak across 4, N+1.",
+      "specs": {},
+      "price": {
+        "value": 62,
+        "estimated": false,
+        "sources": [
+          {
+            "url": "https://directmacro.com/supermicro-pws-2k04a-1r-power-supply.html",
+            "value": 62,
+            "sourced_at": "2026-06-26",
+            "method": "manual",
+            "confidence": "medium"
+          }
+        ]
+      }
+    },
+    {
+      "id": "psu-1600w-titanium",
+      "category": "psu",
+      "name": "1600W 80+ Titanium PSU",
+      "spec": "For 4x RTX PRO 6000 @ 600W = 2.4kW GPU alone.",
+      "specs": {},
+      "price": {
+        "value": 450,
+        "estimated": true,
+        "sources": [
+          {
+            "url": "https://www.newegg.com/p/pl?d=1600W+80+plus+titanium+psu",
+            "value": 450,
+            "sourced_at": "2026-06-26",
+            "method": "hardcoded-estimate",
+            "confidence": "low"
+          }
+        ],
+        "note": "Dual-PSU / 240V required — this is a wall-melter."
+      }
+    },
+    {
+      "id": "storage-nvme-2tb-gen4",
+      "category": "storage",
+      "name": "2TB NVMe Gen4 SSD",
+      "spec": "OS + active models. Use NVMe, not SATA — fast model loads.",
+      "specs": {},
+      "price": {
+        "value": 130,
+        "estimated": true,
+        "sources": [
+          {
+            "url": "https://www.newegg.com/p/pl?d=2TB+nvme+gen4+ssd",
+            "value": 130,
+            "sourced_at": "2026-06-26",
+            "method": "hardcoded-estimate",
+            "confidence": "low"
+          }
+        ]
+      }
+    },
+    {
+      "id": "storage-nvme-4tb-gen4",
+      "category": "storage",
+      "name": "4TB NVMe Gen4 SSD",
+      "spec": "GGUF / safetensors library.",
+      "specs": {},
+      "price": {
+        "value": 260,
+        "estimated": true,
+        "sources": [
+          {
+            "url": "https://www.newegg.com/p/pl?d=4TB+nvme+gen4+ssd",
+            "value": 260,
+            "sourced_at": "2026-06-26",
+            "method": "hardcoded-estimate",
+            "confidence": "low"
+          }
+        ]
+      }
+    },
+    {
+      "id": "storage-u2-nvme-2tb",
+      "category": "storage",
+      "name": "2TB U.2 NVMe PCIe SSD",
+      "spec": "Enterprise U.2 for a 4U server.",
+      "specs": {},
+      "price": {
+        "value": 549,
+        "estimated": false,
+        "sources": [
+          {
+            "url": "https://www.theserverstore.com/supermicro-as-4124gs-tnr-4-bay-nvme-4u-rack-server",
+            "value": 549,
+            "sourced_at": "2026-06-26",
+            "method": "manual",
+            "confidence": "medium"
+          }
+        ]
+      }
+    },
+    {
+      "id": "storage-nvme-4tb-gen5",
+      "category": "storage",
+      "name": "4TB NVMe Gen5 SSD",
+      "spec": "Boot + model library.",
+      "specs": {},
+      "price": {
+        "value": 350,
+        "estimated": true,
+        "sources": [
+          {
+            "url": "https://www.newegg.com/p/pl?d=4TB+nvme+gen5+ssd",
+            "value": 350,
+            "sourced_at": "2026-06-26",
+            "method": "hardcoded-estimate",
+            "confidence": "low"
+          }
+        ]
+      }
+    },
+    {
+      "id": "case-atx-mid-tower",
+      "category": "case",
+      "name": "ATX mid-tower case",
+      "spec": "Clearance for a 3-slot 3090 + good airflow.",
+      "specs": {},
+      "price": {
+        "value": 80,
+        "estimated": true,
+        "sources": [
+          {
+            "url": "https://www.newegg.com/p/pl?d=atx+mid+tower+case",
+            "value": 80,
+            "sourced_at": "2026-06-26",
+            "method": "hardcoded-estimate",
+            "confidence": "low"
+          }
+        ]
+      }
+    },
+    {
+      "id": "case-open-air-frame",
+      "category": "case",
+      "name": "Open-air frame + AIO + risers",
+      "spec": "Open-air / large-airflow case + AIO for the CPU; risers for the multi-card layout.",
+      "specs": {},
+      "price": {
+        "value": 300,
+        "estimated": true,
+        "sources": [
+          {
+            "url": "https://www.newegg.com/p/pl?d=open+air+mining+frame+gpu",
+            "value": 300,
+            "sourced_at": "2026-06-26",
+            "method": "hardcoded-estimate",
+            "confidence": "low"
+          }
+        ],
+        "note": "Varies a lot."
+      }
+    },
+    {
+      "id": "case-supermicro-4124gs",
+      "category": "case",
+      "name": "Supermicro AS-4124GS-TNR 4U barebones (chassis + dual-socket board)",
+      "spec": "8x PCIe 4.0 x16 GPU slots via PLX. Barebones, refurb — includes the dual-socket motherboard.",
+      "specs": {},
+      "price": {
+        "value": 4799,
+        "estimated": false,
+        "sources": [
+          {
+            "url": "https://www.theserverstore.com/supermicro-as-4124gs-tnr-4-bay-nvme-4u-rack-server",
+            "value": 4799,
+            "sourced_at": "2026-06-26",
+            "method": "manual",
+            "confidence": "medium"
+          }
+        ]
+      }
+    },
+    {
+      "id": "case-full-tower-workstation",
+      "category": "case",
+      "name": "Full-tower / 4U workstation case + AIO",
+      "spec": "For 4x dual-slot blower PRO 6000s (600W each) + Threadripper AIO. High static-pressure front-to-back airflow.",
+      "specs": {},
+      "price": {
+        "value": 600,
+        "estimated": true,
+        "sources": [
+          {
+            "url": "https://www.newegg.com/p/pl?d=full+tower+workstation+case",
+            "value": 600,
+            "sourced_at": "2026-06-26",
+            "method": "hardcoded-estimate",
+            "confidence": "low"
+          }
+        ],
+        "note": "Varies a lot."
+      }
+    },
+    {
+      "id": "accessory-rack-rails-sm",
+      "category": "accessory",
+      "name": "Supermicro rack rails (MCP-290-00057-0N)",
+      "spec": "Rails for the 4U chassis.",
+      "specs": {},
+      "price": {
+        "value": 120,
+        "estimated": false,
+        "sources": [
+          {
+            "url": "https://www.theserverstore.com/supermicro-as-4124gs-tnr-4-bay-nvme-4u-rack-server",
+            "value": 120,
+            "sourced_at": "2026-06-26",
+            "method": "manual",
+            "confidence": "medium"
+          }
+        ]
+      }
+    },
+    {
+      "id": "accessory-power-cords-c13",
+      "category": "accessory",
+      "name": "4x C13-C14 PDU power cords",
+      "spec": "Power cords for the redundant PSUs.",
+      "specs": {},
+      "price": {
+        "value": 12,
+        "estimated": false,
+        "sources": [
+          {
+            "url": "https://www.theserverstore.com/supermicro-as-4124gs-tnr-4-bay-nvme-4u-rack-server",
+            "value": 12,
+            "sourced_at": "2026-06-26",
+            "method": "manual",
+            "confidence": "medium"
+          }
+        ]
+      }
+    }
+  ],
+  "builds": [
+    {
+      "id": "budget-1x3090-starter",
+      "name": "Budget 1x RTX 3090 — Local LLM Starter",
+      "subtitle": "24GB VRAM · the cheapest sane way into local LLMs · runs 27-35B models well, 70B quantized",
+      "menu": "💻  Budget 1× RTX 3090  (~$2k)",
+      "tax_pct": 8,
+      "shipping": 0,
+      "budget": 2200,
+      "sys_bw_gbs": 96,
+      "snapshot_date": "2026-06-26",
+      "items": [
+        {
+          "part_id": "gpu-rtx3090",
+          "qty": 1
+        },
+        {
+          "part_id": "cpu-ryzen-7-7700",
+          "qty": 1
+        },
+        {
+          "part_id": "mb-b650-am5",
+          "qty": 1
+        },
+        {
+          "part_id": "ram-ddr5-64gb-6000",
+          "qty": 1
+        },
+        {
+          "part_id": "psu-850w-gold",
+          "qty": 1
+        },
+        {
+          "part_id": "storage-nvme-2tb-gen4",
+          "qty": 1
+        },
+        {
+          "part_id": "case-atx-mid-tower",
+          "qty": 1
+        }
+      ]
+    },
+    {
+      "id": "g2-4x3090-workstation",
+      "name": "G2 — 4x RTX 3090 LLM Workstation (real, running box)",
+      "subtitle": "96GB VRAM · Ryzen 9 9900X · 192GB DDR5-5600 · the actual rig club-3090's serving recipes are tuned on",
+      "menu": "🖥️  G2 — 4× RTX 3090  (96GB)",
+      "tax_pct": 8,
+      "shipping": 0,
+      "budget": 0,
+      "sys_bw_gbs": 90,
+      "snapshot_date": "2026-06-26",
+      "items": [
+        {
+          "part_id": "gpu-rtx3090",
+          "qty": 3
+        },
+        {
+          "part_id": "gpu-rtx3090-ti",
+          "qty": 1
+        },
+        {
+          "part_id": "cpu-ryzen-9-9900x",
+          "qty": 1
+        },
+        {
+          "part_id": "mb-msi-b840-am5",
+          "qty": 1
+        },
+        {
+          "part_id": "ram-corsair-cmk192-ddr5",
+          "qty": 1
+        },
+        {
+          "part_id": "psu-1200w-platinum",
+          "qty": 1
+        },
+        {
+          "part_id": "storage-nvme-2tb-gen4",
+          "qty": 1,
+          "spec": "Boot NVMe — OS + active models."
+        },
+        {
+          "part_id": "storage-nvme-4tb-gen4",
+          "qty": 1
+        },
+        {
+          "part_id": "case-open-air-frame",
+          "qty": 1
+        }
+      ],
+      "default_model": "120a12",
+      "default_quant": 4.5
+    },
+    {
+      "id": "8x3090-192gb",
+      "name": "8x RTX 3090 — 192GB Big-MoE Inference Server",
+      "subtitle": "192GB VRAM · 2x EPYC 7543 Zen3 · 1TB DDR4-3200 (16-ch ~400 GB/s) · Supermicro AS-4124GS-TNR · every GPU PCIe 4.0 x16",
+      "menu": "🗄️  8× RTX 3090 Server  (192GB)",
+      "tax_pct": 8,
+      "shipping": 140,
+      "budget": 25000,
+      "sys_bw_gbs": 200,
+      "snapshot_date": "2026-06-26",
+      "items": [
+        {
+          "part_id": "case-supermicro-4124gs",
+          "qty": 1
+        },
+        {
+          "part_id": "cpu-epyc-7543",
+          "qty": 2
+        },
+        {
+          "part_id": "ram-ddr4-3200-ecc-64gb-rdimm",
+          "qty": 16
+        },
+        {
+          "part_id": "storage-u2-nvme-2tb",
+          "qty": 1
+        },
+        {
+          "part_id": "gpu-rtx3090",
+          "qty": 8,
+          "spec": "BLOWER-style x8 (correct for 4U front-to-rear airflow; loud).",
+          "price_override": {
+            "value": 850,
+            "estimated": false,
+            "sources": [
+              {
+                "url": "https://gpupoet.com/gpu/learn/price/june-2026/nvidia-geforce-rtx-3090",
+                "value": 850,
+                "sourced_at": "2026-06-26",
+                "method": "deal-as-bought",
+                "confidence": "medium"
+              }
+            ],
+            "note": "Deal price; June-2026 used market ~$1,050."
+          }
+        },
+        {
+          "part_id": "psu-2000w-titanium-redundant",
+          "qty": 4
+        },
+        {
+          "part_id": "accessory-rack-rails-sm",
+          "qty": 1
+        },
+        {
+          "part_id": "accessory-power-cords-c13",
+          "qty": 1
+        }
+      ]
+    },
+    {
+      "id": "highend-4x6000-threadripper",
+      "name": "Monster 4x RTX PRO 6000 — Threadripper AI Workstation",
+      "subtitle": "384GB VRAM · 4x 96GB GDDR7 · Threadripper 7960X · 256GB DDR5 ECC · the no-limits build — frontier models fully resident",
+      "menu": "🔥  4× RTX PRO 6000  (384GB)",
+      "tax_pct": 8,
+      "shipping": 0,
+      "budget": 0,
+      "sys_bw_gbs": 179,
+      "snapshot_date": "2026-06-26",
+      "items": [
+        {
+          "part_id": "gpu-rtx-pro-6000",
+          "qty": 4
+        },
+        {
+          "part_id": "cpu-threadripper-7960x",
+          "qty": 1
+        },
+        {
+          "part_id": "mb-trx50",
+          "qty": 1
+        },
+        {
+          "part_id": "ram-ddr5-256gb-ecc-rdimm",
+          "qty": 1
+        },
+        {
+          "part_id": "psu-1600w-titanium",
+          "qty": 2
+        },
+        {
+          "part_id": "storage-nvme-4tb-gen5",
+          "qty": 1
+        },
+        {
+          "part_id": "case-full-tower-workstation",
+          "qty": 1
+        }
+      ]
+    }
+  ]
+}

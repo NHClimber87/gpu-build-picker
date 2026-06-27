@@ -42,7 +42,7 @@
   .mini{padding:4px 7px;font-size:12px}
   .toprow{display:flex;flex-wrap:wrap;gap:18px;margin:14px 0;align-items:stretch}
   .totalsrow{display:flex;margin-top:18px}
-  .totals{margin-left:auto;width:340px;background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:14px 16px}
+  .totals{margin-left:auto;width:360px;background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:14px 16px}
   .totals .row{display:flex;justify-content:space-between;padding:5px 0;font-variant-numeric:tabular-nums}
   .totals .row.grand{border-top:1px solid var(--line);margin-top:6px;padding-top:10px;font-size:18px;font-weight:700;color:var(--accent)}
   .totals input.num{width:80px}
@@ -52,6 +52,27 @@
   .msg.ok{color:var(--accent)} .msg.err{color:var(--bad)} .msg.work{color:var(--accent2)}
   .legend{color:var(--dim);font-size:12px;margin:6px 0 0}
   .legend b{color:var(--txt)}
+  /* provenance / freshness */
+  .prov{margin-top:3px;line-height:1.55}
+  .badge{display:inline-block;font-size:10px;padding:1px 6px;border-radius:10px;border:1px solid var(--line);white-space:nowrap;font-weight:600}
+  .badge.green{color:#06110b;background:var(--accent);border-color:var(--accent)}
+  .badge.amber{color:var(--warn);border-color:#5a4a1f;background:#1a160a}
+  .badge.red{color:var(--bad);border-color:#5a2a2a;background:#1a0c0c}
+  .badge.edit{color:var(--accent2);border-color:#1f3a2b;background:#0b1610}
+  .band{display:block;font-size:10.5px;color:var(--dim);margin-top:2px;font-variant-numeric:tabular-nums}
+  .band b{color:var(--accent2)}
+  .lohibtns{display:flex;gap:3px;flex-wrap:wrap;margin-top:5px}
+  .lohi{padding:2px 6px;font-size:10px;background:#08120c;color:var(--dim);font-variant-numeric:tabular-nums}
+  .lohi.lo:hover{border-color:var(--accent);box-shadow:0 0 0 3px var(--glow);color:var(--accent2)}
+  .lohi.hi{color:var(--warn);border-color:#5a4a1f}
+  .lohi.hi:hover{box-shadow:0 0 0 3px #e0b34122}
+  .spark{vertical-align:middle;margin-left:6px}
+  select.swap{margin-top:4px;font-size:11px;color:var(--dim);padding:3px 6px;background:#06110b}
+  .catadder{display:flex;gap:6px;align-items:center;flex-wrap:wrap;margin-left:auto}
+  .catadder label{font-size:11px;color:var(--dim);text-transform:uppercase;letter-spacing:.3px}
+  .catadder select{width:auto;min-width:96px;max-width:230px;font-size:12px}
+  .confbadge{font-size:11px;color:var(--dim);margin-top:10px;padding-top:8px;border-top:1px dashed var(--line);line-height:1.7}
+  .confbadge .g{color:var(--accent)} .confbadge .a{color:var(--warn)} .confbadge .y{color:var(--accent2)}
   .calc{flex:1;min-width:430px;background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:0;overflow:hidden}
   .calc h2{margin:0;padding:12px 16px;font-size:14px;background:var(--panel2);color:var(--accent2);border-bottom:1px solid var(--line);letter-spacing:.3px}
   .calc .body{padding:14px 16px}
@@ -91,7 +112,7 @@
   @media print{
     .flame,.gpuglow,.fan{animation:none!important}
     body{background:#fff;color:#000}
-    header .sub,.bar,.act,.urlcell button,.msg,.calc .pick,button,#buildSel{display:none!important}
+    header .sub,.bar,.act,.urlcell button,.msg,.calc .pick,button,#buildSel,select.swap{display:none!important}
     table,.totals,.calc,.stage{border-color:#999}
     th{background:#eee;color:#333}
     input,textarea,select{border:none;background:transparent;color:#000}
@@ -110,11 +131,17 @@
 <div class="wrap">
 
   <div class="bar">
-    <button class="primary" onclick="addRow()">+ Add item</button>
+    <button class="primary" onclick="addRow()">+ Add blank item</button>
     <button onclick="resetDefault()">↺ Reset to default</button>
     <button onclick="copyMarkdown()">⧉ Copy as Markdown</button>
     <button onclick="window.print()">⎙ Print / Save PDF</button>
     <span id="saveState" class="note"></span>
+    <span class="catadder">
+      <label>Add from catalog</label>
+      <select id="catCat" onchange="populateCatParts()" title="category"></select>
+      <select id="catPart" title="part"></select>
+      <button class="primary mini" onclick="addFromCatalog()">+ Add</button>
+    </span>
   </div>
 
   <!-- ===== machine + capability estimator, side by side ===== -->
@@ -163,7 +190,7 @@
           <div class="barrow"><span class="lab">Decode speed</span><span class="pbar"><i id="barSpeed"></i></span></div>
         </div>
         <p class="note" id="capNote"></p>
-        <p class="note" style="font-size:11px">Rough estimates. Decode is modeled as memory-bandwidth-bound and calibrated to measured single-RTX-3090 numbers (27B≈40, 35B-A3B≈87, 70B≈18, 120B-A12B≈12 t/s). Multi-GPU decode ≈ per-card bandwidth (pipeline-parallel; tensor-parallel without NVLink is comms-bound). Spill to system RAM drops you toward system-RAM bandwidth. Prefill scales with FP16 TFLOPS.</p>
+        <p class="note" style="font-size:11px">Rough estimates. Decode is modeled as memory-bandwidth-bound and calibrated to measured 3090 numbers (dense 27B≈40, 35B-A3B≈87, 70B≈18 t/s on one card; 120B-A12B MoE≈67 t/s resident on a 4×3090 box). MoE decode tracks ACTIVE params, so a big MoE that fits in VRAM runs far faster than its total size suggests. Multi-GPU decode ≈ per-card bandwidth (pipeline-parallel; tensor-parallel without NVLink is comms-bound). Spill to system RAM drops you toward system-RAM bandwidth. Prefill scales with FP16 TFLOPS. Capability reads ONLY parts' specs — an unknown spec is treated as unknown, never 0.</p>
       </div>
     </div>
   </div>
@@ -171,10 +198,10 @@
   <table id="tbl">
     <thead>
       <tr>
-        <th style="width:150px">Item</th>
+        <th style="width:190px">Item</th>
         <th>Spec / notes</th>
         <th style="width:60px">Qty</th>
-        <th style="width:110px">Unit $</th>
+        <th style="width:172px">Unit $</th>
         <th style="width:150px">Source URL</th>
         <th style="width:90px;text-align:right">Ext.</th>
         <th style="width:40px"></th>
@@ -190,33 +217,164 @@
       <div class="row"><span>Shipping $<input class="num mini" id="shipAmt" type="number" step="1" value="0" oninput="recalc()"></span><span id="shipShow">$0</span></div>
       <div class="row grand"><span>Grand total</span><span id="grand">$0</span></div>
       <div class="note" id="budgetNote">Budget line: $<span id="budgetVal"></span> · <span id="headroom"></span></div>
+      <div class="confbadge" id="confBadge"></div>
     </div>
   </div>
 
-  <p class="legend"><b>Autofill from URL:</b> paste a product URL into an item's URL field and click <b>⤓</b>. Best-effort only — it reads <i>structured data</i> (schema.org/JSON-LD or OpenGraph price+title) through a public CORS proxy. Many stores don't expose it; if it can't read the page it says so and you type the price in. Never invents a number.</p>
+  <p class="legend"><b>Provenance:</b> every price carries a freshness badge — <span class="badge green">● sourced</span> fresh (&lt;7d), <span class="badge amber">◌ estimate</span> needs verifying, <span class="badge red">● stale</span> (&gt;21d). Estimates are flagged, never hidden; nothing is ever fabricated. <b>Autofill:</b> paste a product URL and click <b>⤓</b> — it reads <i>structured data</i> only, through a public CORS proxy, and says so when it can't.</p>
 
 </div>
 
 <script>
-const BUILDS = __BUILDS_JSON__;     // [{slug,title,subtitle,tax,ship,budget,sysbw,rows}, ...]
+const CATALOG_BAKED = __CATALOG_JSON__;   // {schema_version, parts:[...], builds:[...]}
+const FOCUS_BUILD_ID = __FOCUS_JSON__;     // null on the index; a build id on a single-build page
+let CAT = CATALOG_BAKED;
+let PARTS = {};        // id -> part
+let BUILDS = [];       // resolved, render-ready builds
 let DEFAULT_BOM=[], BUDGET=0, SYS_BW=0, KEY="", bom=[], B=null;
+const EST_UNCERT = 0.20;   // ± band applied to the estimated (unverified) portion of a build
 
-// model presets: gbtok = empirical GB moved per token at Q4 on a single 3090 (encodes arch overhead)
+// model presets: gbtok = empirical GB moved per token at Q4 in the FITS-IN-VRAM case (encodes arch
+// overhead). For MoE it tracks ACTIVE params + always-on shared/attention weights, NOT total params —
+// the spill-to-RAM penalty is applied separately via effBw, so it must NOT be baked in here.
 const MODELS = [
   {id:"7b",    label:"7–8B dense",        total:7.5, active:7.5, gbtok:5.6},
   {id:"14b",   label:"14B dense",         total:14,  active:14,  gbtok:10.5},
   {id:"27b",   label:"27–32B dense",      total:29,  active:29,  gbtok:23.4},
   {id:"35a3",  label:"35B-A3B MoE",       total:35,  active:3,   gbtok:10.8},
   {id:"70b",   label:"70B dense",         total:70,  active:70,  gbtok:52},
-  {id:"120a12",label:"120B-A12B MoE",     total:120, active:12,  gbtok:78},
-  {id:"235a22",label:"235B-A22B MoE",     total:235, active:22,  gbtok:120},
+  {id:"120a12",label:"120B-A12B MoE",     total:120, active:12,  gbtok:15},
+  {id:"235a22",label:"235B-A22B MoE",     total:235, active:22,  gbtok:26},
 ];
 
+// ===================== catalog plumbing (data-driven) =====================
+function normPrice(p){
+  if(p==null) return null;
+  if(typeof p==='number') return {value:p, estimated:true,
+    sources:[{value:p, sourced_at:"", method:"build-override", confidence:"low"}], note:"build-local override"};
+  return p;
+}
+function primaryUrl(rec){ if(rec&&rec.sources) for(const s of rec.sources){ if(s.url) return s.url; } return ""; }
+function resolveItem(it){
+  const part = PARTS[it.part_id] || {};
+  const rec  = normPrice(it.price_override) || part.price || {value:0, estimated:true, sources:[]};
+  const specs = part.specs || {};
+  const row = {
+    part_id: it.part_id,
+    category: part.category || "",
+    name: part.name || it.part_id || "Unknown part",
+    spec: it.spec || part.spec || "",
+    qty: it.qty!=null ? it.qty : 1,
+    price: +(rec.value||0),
+    url: primaryUrl(rec),
+    flag: it.note || (rec&&rec.note) || part.note || "",
+    _price: rec,
+  };
+  ['vram_gb','bw_gbs','tflops','ram_gb'].forEach(k=>{ if(specs[k]!=null) row[k]=specs[k]; });
+  if(row.category==='gpu' && row.vram_gb==null) row.flag = (row.flag?row.flag+' · ':'')+'VRAM spec unknown';
+  return row;
+}
+function resolveBuild(b){
+  return {
+    slug: b.id, title: b.name, subtitle: b.subtitle||"", menu: b.menu||b.name,
+    tax: b.tax_pct||0, ship: b.shipping||0, budget: b.budget||0, sysbw: b.sys_bw_gbs||0,
+    default_model: b.default_model||"", default_quant: b.default_quant||"",
+    rows: (b.items||[]).map(resolveItem),
+  };
+}
+function indexCatalog(cat){
+  PARTS={}; (cat.parts||[]).forEach(p=>{ PARTS[p.id]=p; });
+  let builds = cat.builds||[];
+  if(FOCUS_BUILD_ID){ const f=builds.filter(b=>b.id===FOCUS_BUILD_ID); if(f.length) builds=f; }
+  BUILDS = builds.map(resolveBuild);
+}
+
+// ===================== freshness / provenance (Phase 2) =====================
+function todayISO(){ return new Date().toISOString().slice(0,10); }
+function daysSince(iso){
+  if(!iso) return null;
+  const then=Date.parse(iso+"T00:00:00Z"); if(isNaN(then)) return null;
+  const now=Date.parse(todayISO()+"T00:00:00Z");
+  return Math.max(0, Math.round((now-then)/86400000));
+}
+function freshestDays(rec){
+  if(!rec||!rec.sources||!rec.sources.length) return null;
+  let best=null;
+  rec.sources.forEach(s=>{ const d=daysSince(s.sourced_at); if(d!=null&&(best==null||d<best)) best=d; });
+  return best;
+}
+function priceBadge(rec){
+  if(!rec) return {cls:"red", text:"no price"};
+  if(rec.estimated){
+    const d=freshestDays(rec);
+    return {cls:"amber", text:"◌ estimate"+(d!=null?` · ${d===0?'today':d+'d ago'}`:" · unverified")+" — verify"};
+  }
+  const d=freshestDays(rec);
+  if(d==null) return {cls:"red", text:"● undated"};
+  const cls = d<7?"green":(d<=21?"amber":"red");
+  return {cls, text:`● sourced ${d===0?'today':d+'d ago'}`};
+}
+function priceBand(rec){
+  if(!rec||!rec.sources) return null;
+  const vals=rec.sources.map(s=>+s.value).filter(v=>v>0).sort((a,b)=>a-b);
+  if(vals.length<2) return null;
+  const lo=vals[0], hi=vals[vals.length-1];
+  const mid = vals.length%2 ? vals[(vals.length-1)/2] : (vals[vals.length/2-1]+vals[vals.length/2])/2;
+  return {lo, mid, hi, n:vals.length};
+}
+function sparkline(rec){
+  const h=(rec&&rec.history)||[];
+  if(h.length<2) return "";
+  const vs=h.map(p=>+p.value), lo=Math.min(...vs), hi=Math.max(...vs), rng=(hi-lo)||1, W=54, H=14;
+  const pts=vs.map((v,i)=>`${(i/(vs.length-1)*W).toFixed(1)},${(H-((v-lo)/rng)*H).toFixed(1)}`).join(" ");
+  const dir = vs[vs.length-1]>vs[0] ? "var(--bad)" : "var(--accent)";
+  const was = vs[0], now = vs[vs.length-1];
+  const title = `was $${fmt(was)} ${vs.length} weeks ago → now $${fmt(now)}`;
+  return `<svg class="spark" width="${W}" height="${H}" viewBox="0 0 ${W} ${H}"><title>${esc(title)}</title><polyline points="${pts}" fill="none" stroke="${dir}" stroke-width="1.3"/></svg>`;
+}
+function provHtml(r){
+  const rec=r._price, recVal=rec?+rec.value:0;
+  const edited = rec && Math.abs((r.price||0)-recVal)>0.005;
+  const badge = edited ? {cls:"edit", text:"✎ your price"} : priceBadge(rec);
+  let h=`<span class="badge ${badge.cls}">${esc(badge.text)}</span>`;
+  const band=priceBand(rec);
+  if(band) h+=`<span class="band">$${fmt(band.lo)}–<b>$${fmt(band.mid)}</b>–$${fmt(band.hi)} · ${band.n} sources</span>`;
+  h+=sparkline(rec);
+  if(r.flag) h+=`<div class="flag">⚠ ${esc(r.flag)}</div>`;
+  return h;
+}
+function fmt(n){ return (+n).toLocaleString(undefined,{maximumFractionDigits:0}); }
+
+// ---- low / average / high quick-set (conservative vs best-deal budgeting) ----
+function priceRange(rec){
+  if(!rec) return null;
+  const b=priceBand(rec);                                   // ≥2 sources -> real spread
+  if(b) return {lo:b.lo, avg:Math.round(b.mid), hi:b.hi};
+  const v=+(rec.value||0); if(!v) return null;
+  const m = rec.estimated ? 0.20 : 0.08;                    // estimates carry a wider band than grounded
+  return {lo:Math.round(v*(1-m)), avg:v, hi:Math.round(v*(1+m))};
+}
+function lohiHtml(i,r){
+  const rng=priceRange(r._price); if(!rng) return "";
+  return `<div class="lohibtns">`
+    +`<button class="mini lohi lo" title="optimistic — best deal" onclick="setRowPrice(${i},'lo')">lo $${fmt(rng.lo)}</button>`
+    +`<button class="mini lohi" title="average / median" onclick="setRowPrice(${i},'avg')">avg $${fmt(rng.avg)}</button>`
+    +`<button class="mini lohi hi" title="conservative — budget high" onclick="setRowPrice(${i},'hi')">hi $${fmt(rng.hi)}</button>`
+    +`</div>`;
+}
+function setRowPrice(i,which){
+  const rng=priceRange(bom[i]&&bom[i]._price); if(!rng) return;
+  bom[i].price = which==='lo'?rng.lo : (which==='hi'?rng.hi : rng.avg);
+  render(); persist();
+}
+
+// ===================== persistence =====================
 function load(){
   let rows=null;
   try{const s=localStorage.getItem(KEY); if(s){const o=JSON.parse(s); if(o&&o.rows){ if(o.taxPct!=null)setLater('taxPct',o.taxPct); if(o.ship!=null)setLater('shipAmt',o.ship); rows=o.rows; }}}catch(e){}
   if(!rows) rows=JSON.parse(JSON.stringify(DEFAULT_BOM));
-  rows.forEach((r,i)=>{ const d=DEFAULT_BOM[i]; if(d){ ['vram_gb','bw_gbs','tflops','ram_gb'].forEach(k=>{ if(d[k]!=null && r[k]==null) r[k]=d[k]; }); }});
+  // back-fill catalog-derived fields the saved copy may predate (specs, identity, provenance)
+  rows.forEach((r,i)=>{ const d=DEFAULT_BOM[i]; if(d){ ['vram_gb','bw_gbs','tflops','ram_gb','category','part_id','_price'].forEach(k=>{ if(d[k]!=null && r[k]==null) r[k]=d[k]; }); }});
   return rows;
 }
 function setLater(id,v){ const el=document.getElementById(id); if(el)el.value=v; }
@@ -226,7 +384,7 @@ let flashT; function flash(){const e=document.getElementById('saveState'); e.tex
 function val(id){return parseFloat(document.getElementById(id).value)||0;}
 function money(n){return "$"+n.toLocaleString(undefined,{minimumFractionDigits:0,maximumFractionDigits:2});}
 
-// ---- load a build (single-build files have one; the index page has all 4) ----
+// ===================== load a build =====================
 function loadBuild(i){
   B=BUILDS[i]||BUILDS[0];
   DEFAULT_BOM=B.rows; BUDGET=+B.budget||0; SYS_BW=+B.sysbw||0; KEY="priceit-"+B.slug;
@@ -237,25 +395,33 @@ function loadBuild(i){
   document.getElementById('budgetNote').style.display='';
   bom=load();
   ['hwVram','hwRam','hwBw','hwSysBw','hwNgpu','hwTflops'].forEach(id=>{const el=document.getElementById(id);if(el)delete el.dataset.auto;});
+  const mEl=document.getElementById('mdl'); if(mEl&&B.default_model) mEl.value=B.default_model;
+  const qEl=document.getElementById('quant'); if(qEl&&B.default_quant) qEl.value=String(B.default_quant);
   render(); deriveHw();
   const sel=document.getElementById('buildSel'); if(sel) sel.value=i;
 }
 
+function partOptions(category, selId){
+  return (CAT.parts||[]).filter(p=>p.category===category)
+    .map(p=>`<option value="${esc(p.id)}"${p.id===selId?' selected':''}>${esc(p.name)} — $${fmt(p.price&&p.price.value||0)}</option>`).join("");
+}
 function render(){
   const tb=document.getElementById('rows'); tb.innerHTML="";
   bom.forEach((r,i)=>{
     const tr=document.createElement('tr');
     const ext=(r.qty||0)*(r.price||0);
     const link = r.url ? `<a href="${esc(r.url)}" target="_blank" rel="noopener" title="${esc(r.url)}">${esc(shortUrl(r.url))}</a>` : `<span class="note">—</span>`;
+    const swap = r.category ? `<select class="swap" onchange="swapPart(${i},this.value)" title="swap part (same category)"><option value="">⇄ swap ${esc(r.category)}…</option>${partOptions(r.category, r.part_id)}</select>` : "";
     tr.innerHTML=`
-      <td class="name"><input value="${esc(r.name)}" oninput="upd(${i},'name',this.value)"></td>
+      <td class="name"><input value="${esc(r.name)}" oninput="upd(${i},'name',this.value)">${swap}</td>
       <td class="spec"><textarea oninput="upd(${i},'spec',this.value)">${esc(r.spec)}</textarea></td>
       <td><input class="num" type="number" step="1" value="${r.qty}" oninput="upd(${i},'qty',this.value)"></td>
-      <td><input class="num" type="number" step="0.01" value="${r.price}" oninput="upd(${i},'price',this.value)">${r.flag?'<div class="flag">⚠ '+esc(r.flag)+'</div>':''}</td>
+      <td class="unit"><input class="num" type="number" step="10" value="${r.price}" oninput="upd(${i},'price',this.value)">${lohiHtml(i,r)}<div class="prov" id="prov${i}">${provHtml(r)}</div></td>
       <td>
         <div class="urlcell">
           ${link}
-          <button class="mini" title="Autofill from URL" onclick="autofill(${i})">⤓</button>
+          <button class="mini" title="Autofill price from URL" onclick="autofill(${i})">⤓</button>
+          <button class="mini" title="Report a price you paid (opens a prefilled GitHub issue — zero backend)" onclick="reportPrice(${i})">💬</button>
         </div>
         <input style="margin-top:4px;font-size:11px" placeholder="paste URL…" value="${esc(r.url)}" oninput="upd(${i},'url',this.value)">
         <div class="msg" id="msg${i}"></div>
@@ -274,14 +440,36 @@ function upd(i,k,v){
   if(k==='qty'||k==='price'){
     const cell=document.querySelector('#rows tr:nth-child('+(i+1)+') td.ext');
     if(cell) cell.textContent=money((bom[i].qty||0)*(bom[i].price||0));
+    if(k==='price'){ const pv=document.getElementById('prov'+i); if(pv) pv.innerHTML=provHtml(bom[i]); }
     recalc();
     if(k==='qty') deriveHw();
   }
   persistLight();
 }
-function addRow(){ bom.push({name:"New item",spec:"",qty:1,price:0,url:""}); render(); deriveHw(); persist(); }
+function swapPart(i,id){ if(!id)return; const q=bom[i].qty; bom[i]=resolveItem({part_id:id, qty:q}); render(); deriveHw(); persist(); }
+function addRow(){ bom.push({name:"New item",spec:"",qty:1,price:0,url:"",category:"",_price:null}); render(); deriveHw(); persist(); }
 function delRow(i){ bom.splice(i,1); render(); deriveHw(); persist(); }
 function resetDefault(){ if(confirm("Reset to the default list? Your edits will be lost.")){ bom=JSON.parse(JSON.stringify(DEFAULT_BOM)); document.getElementById('taxPct').value=B.tax||0; document.getElementById('shipAmt').value=B.ship||0; render(); deriveHw(); persist(); } }
+
+// ---- catalog adder (dropdowns built from CATALOG.parts, grouped by category) ----
+function populateCatParts(){
+  const c=document.getElementById('catCat').value;
+  const ps=document.getElementById('catPart'); if(!ps)return;
+  ps.innerHTML=partOptions(c, null);
+}
+function addFromCatalog(){
+  const id=document.getElementById('catPart').value; if(!id)return;
+  bom.push(resolveItem({part_id:id, qty:1})); render(); deriveHw(); persist();
+}
+function buildSelectorAndAdder(){
+  const sel=document.getElementById('buildSel');
+  sel.innerHTML="";
+  BUILDS.forEach((b,i)=>{const o=document.createElement('option');o.value=i;o.textContent=b.menu||b.title;sel.appendChild(o);});
+  sel.style.display = BUILDS.length>1 ? '' : 'none';
+  const cats=[...new Set((CAT.parts||[]).map(p=>p.category))];
+  const cs=document.getElementById('catCat');
+  if(cs){ cs.innerHTML=""; cats.forEach(c=>{const o=document.createElement('option');o.value=c;o.textContent=c;cs.appendChild(o);}); populateCatParts(); }
+}
 
 function recalc(){
   let sub=0; bom.forEach(r=>sub+=(r.qty||0)*(r.price||0));
@@ -298,10 +486,35 @@ function recalc(){
       : `<span style="color:var(--bad)">${money(-head)} over</span>`;
     document.getElementById('budgetNote').style.display='';
   } else { document.getElementById('budgetNote').style.display='none'; }
+  renderConfidence(sub);
   persistLight();
 }
 
-// ---- capability estimator ----
+// ---- build-total confidence badge: sourced % / estimated % + estimated ± range ----
+function renderConfidence(sub){
+  let grounded=0, estimated=0, edited=0;
+  bom.forEach(r=>{
+    const ext=(r.qty||0)*(r.price||0), rec=r._price;
+    const isEdit = rec && Math.abs((r.price||0)-(+rec.value))>0.005;
+    if(isEdit) edited+=ext;
+    else if(rec && !rec.estimated) grounded+=ext;
+    else estimated+=ext;   // hardcoded estimates, missing records, overridden-as-number
+  });
+  const el=document.getElementById('confBadge'); if(!el) return;
+  if(sub<=0){ el.innerHTML=""; return; }
+  const pct=x=>Math.round(100*x/sub);
+  const band=Math.round(estimated*EST_UNCERT);
+  let h=`<b>Confidence:</b> <span class="g">🟢 grounded ${money(grounded)} (${pct(grounded)}%)</span>`;
+  if(estimated>0) h+=` · <span class="a">🟠 estimated ${money(estimated)} (${pct(estimated)}%) ±${money(band)}</span>`;
+  if(edited>0)    h+=` · <span class="y">✎ your prices ${money(edited)} (${pct(edited)}%)</span>`;
+  if(estimated>0){
+    const g=sub+ (val('taxPct')/100)*sub + val('shipAmt');
+    h+=`<br><span class="note" style="margin:0">Grand total carries ±${money(band)} of estimate uncertainty — verify the 🟠 lines with the ⤓ button to shrink it.</span>`;
+  }
+  el.innerHTML=h;
+}
+
+// ===================== capability estimator =====================
 function deriveHw(){
   let vram=0, ram=0, tflops=0, ngpu=0, bwMax=0;
   bom.forEach(r=>{
@@ -400,7 +613,7 @@ const MACHINE = {
       + fan(108,42,11) + fan(140,42,11)
       +`<rect x="96" y="62" width="4" height="20" fill="#7af2b0"/><rect x="102" y="62" width="4" height="20" fill="#7af2b0"/><rect x="108" y="62" width="4" height="20" fill="#7af2b0"/><rect x="114" y="62" width="4" height="20" fill="#3a7a55"/>`;
     for(let i=0;i<g;i++) s+=gpuCard(94,92+i*13,60,11,(i*0.18).toFixed(2));
-    s+=`<rect x="86" y="146" width="76" height="8" rx="2" fill="#16241c"/>`; // PSU shroud
+    s+=`<rect x="86" y="146" width="76" height="8" rx="2" fill="#16241c"/>`;
     return s;
   },
   3:(g)=>{
@@ -409,13 +622,10 @@ const MACHINE = {
     for(let u=0;u<3;u++){
       const y=28+u*44;
       s+=`<rect x="20" y="${y}" width="226" height="38" rx="3" fill="#0e1d15" stroke="#2bbf6a"/>`
-        +`<rect x="24" y="${y+4}" width="8" height="30" rx="1" fill="#16241c"/><rect x="234" y="${y+4}" width="8" height="30" rx="1" fill="#16241c"/>`; // rack ears
-      // fan wall
+        +`<rect x="24" y="${y+4}" width="8" height="30" rx="1" fill="#16241c"/><rect x="234" y="${y+4}" width="8" height="30" rx="1" fill="#16241c"/>`;
       for(let f=0;f<4;f++) s+=fan(46+f*17,y+19,7);
-      // drive bays
       for(let d=0;d<3;d++) s+=`<rect x="120" y="${y+6+d*9}" width="34" height="6" rx="1" fill="#0a1610" stroke="#1f7a4d"/><circle cx="124" cy="${y+9+d*9}" r="1.4" fill="#36e27b"/>`;
     }
-    // GPU bay row across the middle unit
     for(let i=0;i<bays;i++) s+=gpuCard(166+i*9, 50, 8, 30, (i*0.1).toFixed(2));
     return s;
   },
@@ -431,17 +641,13 @@ const MACHINE = {
           +`<circle cx="${x+56}" cy="${yy+4}" r="1.8" fill="#ffd34d"/>`;
       }
     }
-    // emergency amber bar
     s+=`<rect x="14" y="18" width="242" height="5" rx="2" fill="#ffae00" opacity=".5"/>`;
-    // layered flames along base
     const cls=['','f2','f3'];
     for(let x=24,i=0;x<252;x+=17,i++){
       s+=`<path class="flame ${cls[i%3]}" d="M${x} 156 q -8 -20 0 -34 q 7 11 7 0 q 10 14 0 34 z" fill="url(#fire)"/>`;
       s+=`<path class="flame ${cls[(i+1)%3]}" d="M${x+3} 156 q -4 -12 0 -20 q 4 7 4 0 q 5 9 0 20 z" fill="#ffe36b" opacity=".85"/>`;
     }
-    // embers
     for(let e=0;e<10;e++) s+=`<circle class="gpuglow" cx="${24+e*24}" cy="${120-(e%4)*10}" r="1.6" fill="#ffb13d" style="animation-delay:${(e*0.13).toFixed(2)}s"/>`;
-    // smoke
     for(let x=46;x<240;x+=64) s+=`<circle cx="${x}" cy="16" r="10" fill="#171717" opacity=".4"/>`;
     return s;
   }
@@ -450,13 +656,35 @@ function renderMachine(){
   const vram=val('hwVram'), ng=Math.max(0,Math.round(val('hwNgpu'))), ram=val('hwRam');
   let tier,name,desc;
   if(vram<48){ tier=1; name="Small Desktop"; desc="Entry rig — a single 24GB-class card. Comfortable with 7–35B local models."; }
-  else if(vram<128){ tier=2; name="Gleaming Tower"; desc="Enthusiast multi-GPU tower. 48–96GB VRAM — big-MoE and 70B territory."; }
+  else if(vram<128){ tier=2; name="Workstation"; desc="Multi-GPU LLM workstation. 48–96GB VRAM — runs big-MoE and 70B-class models resident."; }
   else if(vram<320){ tier=3; name="Server Blade"; desc=(vram||0)+"GB VRAM across many GPUs — frontier local models sit resident."; }
   else { tier=4; name="H300 Cluster — ON FIRE 🔥"; desc="Absolute overkill. "+(vram||0)+"GB VRAM across racks. The breaker panel is sweating."; }
   const m=document.getElementById('machine'); if(m) m.innerHTML=MACHINE[tier](ng);
   const tn=document.getElementById('tierName'); if(tn){ tn.textContent=name; tn.style.color = tier===4?'#ff8a3c':'var(--accent2)'; }
   const td=document.getElementById('tierDesc'); if(td) td.textContent=desc;
   const tm=document.getElementById('tierMeter'); if(tm) tm.innerHTML=`<b>${ng||0}</b> GPU${ng===1?'':'s'} · <b>${vram||0}</b> GB VRAM · <b>${ram||0}</b> GB RAM`;
+}
+
+// ---- community write-back: prefilled GitHub issue deep-link (Phase 4, zero backend) ----
+function repoSlug(){
+  if(CAT && CAT.repo) return CAT.repo;
+  try{ const h=location.hostname, p=location.pathname.split('/').filter(Boolean);
+    if(h.endsWith('.github.io')) return h.split('.')[0]+'/'+(p[0]||''); }catch(e){}
+  return "";
+}
+function reportPrice(i){
+  const r=bom[i], slug=repoSlug(), m=document.getElementById('msg'+i);
+  if(!slug){ if(m){m.className='msg err';m.textContent='set catalog.repo to enable price reports';} return; }
+  if(!r.part_id){ if(m){m.className='msg err';m.textContent='only catalog parts can be reported — swap one in first';} return; }
+  const ts=new Date().toISOString();
+  const title=`price quote: ${r.part_id} $${r.price}`;
+  const body=["### Community price quote","",
+    "The bot parses the fenced block below — keep the `key: value` format.","",
+    "```quote","part_id: "+r.part_id,"price: "+(r.price||0),"url: "+(r.url||""),"sourced_at: "+ts,"```","",
+    "_Advisory until a 2nd matching quote within band corroborates it._"].join("\n");
+  const url=`https://github.com/${slug}/issues/new?labels=price-quote&title=${encodeURIComponent(title)}&body=${encodeURIComponent(body)}`;
+  window.open(url,"_blank","noopener");
+  if(m){m.className='msg ok';m.textContent='✓ opening a prefilled GitHub issue — submit it to contribute';}
 }
 
 // ---- best-effort autofill: structured data only, via CORS proxy ----
@@ -510,24 +738,39 @@ function parseStructured(html){
 }
 
 function copyMarkdown(){
-  let sub=0; let md="| Item | Spec | Qty | Unit $ | Ext $ | Source |\n|---|---|---|---|---|---|\n";
+  let sub=0; let md="| Item | Spec | Qty | Unit $ | Ext $ | Source | Provenance |\n|---|---|---|---|---|---|---|\n";
   bom.forEach(r=>{const ext=(r.qty||0)*(r.price||0);sub+=ext;
-    md+=`| ${r.name} | ${(r.spec||'').replace(/\n/g,' ').replace(/\|/g,'\\|')} | ${r.qty} | ${money(r.price)} | ${money(ext)} | ${r.url||'—'} |\n`;});
+    const rec=r._price, edited=rec&&Math.abs((r.price||0)-(+rec.value))>0.005;
+    const prov = edited?"your price":(rec?priceBadge(rec).text.replace(/[●◌]\s*/,''):"—");
+    md+=`| ${r.name} | ${(r.spec||'').replace(/\n/g,' ').replace(/\|/g,'\\|')} | ${r.qty} | ${money(r.price)} | ${money(ext)} | ${r.url||'—'} | ${prov} |\n`;});
   const tax=sub*val('taxPct')/100, ship=val('shipAmt');
   md+=`\n**Subtotal:** ${money(sub)} · **Tax (${val('taxPct')}%):** ${money(tax)} · **Shipping:** ${money(ship)} · **Grand total:** ${money(sub+tax+ship)}\n`;
   navigator.clipboard.writeText(md).then(()=>{const e=document.getElementById('saveState');e.textContent="✓ markdown copied";setTimeout(()=>e.textContent="",1500);});
 }
 
-// ---- init ----
+// ---- catalog auto-refresh: baked CONST first (works on file://), then try fetch ----
+async function tryFetchCatalog(){
+  try{
+    const res=await fetch('catalog.json',{cache:'no-store'});
+    if(!res.ok) return;
+    const fresh=await res.json();
+    if(!fresh||typeof fresh!=='object'||!Array.isArray(fresh.parts)||!Array.isArray(fresh.builds)) return;
+    if((fresh.schema_version||0) < (CATALOG_BAKED.schema_version||0)) return;  // never downgrade
+    const curIdx=Math.max(0,+(document.getElementById('buildSel').value||0));
+    CAT=fresh; indexCatalog(CAT); buildSelectorAndAdder();
+    loadBuild(Math.min(curIdx, BUILDS.length-1));
+    const e=document.getElementById('saveState'); if(e){ e.textContent="↻ catalog refreshed"; setTimeout(()=>e.textContent="",1600); }
+  }catch(e){ /* keep baked catalog — never throw */ }
+}
+
+// ===================== init =====================
 const mdlSel=document.getElementById('mdl');
 MODELS.forEach(m=>{const o=document.createElement('option');o.value=m.id;o.textContent=m.label;mdlSel.appendChild(o);});
 mdlSel.value="35a3";
-const buildSel=document.getElementById('buildSel');
-if(BUILDS.length>1){
-  BUILDS.forEach((b,i)=>{const o=document.createElement('option');o.value=i;o.textContent=b.menu||b.title;buildSel.appendChild(o);});
-  buildSel.style.display='';
-}
+indexCatalog(CAT);
+buildSelectorAndAdder();
 loadBuild(0);
+tryFetchCatalog();
 </script>
 </body>
 </html>

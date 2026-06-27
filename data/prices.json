@@ -1,14 +1,14 @@
 {
-  "updated": "2026-06-27",
-  "note": "Auto-cached GPU prices (lowest-average) from GPU Poet. Retailers block scraping; non-GPU parts keep their baked-in/flagged prices.",
+  "updated": "2026-06-26",
+  "note": "Cron cache of gpupoet GPU prices. catalog.json is the source of truth; this is a log.",
   "prices": {
-    "rtx-3090": 1126,
-    "rtx-3090-ti": 1542,
-    "rtx-5090": 3680
+    "gpu-rtx3090": 1126,
+    "gpu-rtx3090-ti": 1845,
+    "gpu-rtx5090": 3658
   },
   "sources": {
-    "rtx-3090": "https://gpupoet.com/gpu/learn/price/june-2026/nvidia-geforce-rtx-3090",
-    "rtx-3090-ti": "https://gpupoet.com/gpu/learn/price/june-2026/nvidia-geforce-rtx-3090-ti",
-    "rtx-5090": "https://gpupoet.com/gpu/learn/price/june-2026/nvidia-geforce-rtx-5090"
+    "gpu-rtx3090": "https://gpupoet.com/gpu/learn/price/june-2026/nvidia-geforce-rtx-3090",
+    "gpu-rtx3090-ti": "https://gpupoet.com/gpu/learn/price/may-2026/nvidia-geforce-rtx-3090-ti",
+    "gpu-rtx5090": "https://gpupoet.com/gpu/learn/price/may-2026/nvidia-geforce-rtx-5090"
   }
 }
