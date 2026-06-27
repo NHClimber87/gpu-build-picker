@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>High-End 4× RTX 5090 — Threadripper AI Workstation</title>
+<title>Monster 4× RTX PRO 6000 — Threadripper AI Workstation</title>
 <style>
   :root{
     /* green palette — emerald on near-black. Swap these to retheme. */
@@ -40,7 +40,8 @@
   .urlcell a{color:var(--accent2);text-decoration:none;font-size:12px;max-width:120px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
   .urlcell a:hover{text-decoration:underline}
   .mini{padding:4px 7px;font-size:12px}
-  .panels{display:flex;flex-wrap:wrap;gap:18px;margin-top:18px;align-items:flex-start}
+  .toprow{display:flex;flex-wrap:wrap;gap:18px;margin:14px 0;align-items:stretch}
+  .totalsrow{display:flex;margin-top:18px}
   .totals{margin-left:auto;width:340px;background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:14px 16px}
   .totals .row{display:flex;justify-content:space-between;padding:5px 0;font-variant-numeric:tabular-nums}
   .totals .row.grand{border-top:1px solid var(--line);margin-top:6px;padding-top:10px;font-size:18px;font-weight:700;color:var(--accent)}
@@ -73,7 +74,7 @@
   .pbar{flex:1;height:8px;background:#0b1610;border:1px solid var(--line);border-radius:5px;overflow:hidden}
   .pbar > i{display:block;height:100%;background:linear-gradient(90deg,#15683b,var(--accent));transition:width .3s}
   /* machine build stage */
-  .stage{position:relative;margin:14px 0;padding:14px 18px;background:linear-gradient(180deg,#0b1812,#0a0f0c);border:1px solid var(--line);border-radius:12px;display:flex;align-items:center;gap:20px;overflow:hidden}
+  .stage{flex:1 1 480px;position:relative;padding:14px 18px;background:linear-gradient(180deg,#0b1812,#0a0f0c);border:1px solid var(--line);border-radius:12px;display:flex;align-items:center;gap:20px;overflow:hidden}
   .stage svg{flex:0 0 auto;filter:drop-shadow(0 0 10px #36e27b22)}
   .stage .cap{flex:1}
   .stage .tier{font-size:19px;font-weight:800;color:var(--accent2);margin-bottom:3px;letter-spacing:.2px}
@@ -101,10 +102,10 @@
 <body>
 <header>
   <div class="hdrtop">
-    <h1 id="hdrTitle">High-End 4× RTX 5090 — Threadripper AI Workstation<span class="dot"> ●</span></h1>
+    <h1 id="hdrTitle">Monster 4× RTX PRO 6000 — Threadripper AI Workstation<span class="dot"> ●</span></h1>
     <select id="buildSel" onchange="loadBuild(this.value)" style="display:none"></select>
   </div>
-  <div class="sub" id="hdrSub">128GB VRAM · Threadripper 7960X · 256GB DDR5 ECC · all-new, money-no-object contrast to the used-3090 value builds · prices a 2026-06-26 snapshot — edit / autofill to refresh</div>
+  <div class="sub" id="hdrSub">384GB VRAM · 4× 96GB GDDR7 · Threadripper 7960X · 256GB DDR5 ECC · the no-limits build — frontier models fully resident · prices a 2026-06-26 snapshot — edit / autofill to refresh</div>
 </header>
 <div class="wrap">
 
@@ -116,7 +117,8 @@
     <span id="saveState" class="note"></span>
   </div>
 
-  <!-- ===== machine build stage (escalates as parts are added) ===== -->
+  <!-- ===== machine + capability estimator, side by side ===== -->
+  <div class="toprow">
   <div class="stage">
     <svg id="machine" width="270" height="170" viewBox="0 0 270 170" aria-label="build visualization"></svg>
     <div class="cap">
@@ -126,22 +128,6 @@
     </div>
   </div>
 
-  <table id="tbl">
-    <thead>
-      <tr>
-        <th style="width:150px">Item</th>
-        <th>Spec / notes</th>
-        <th style="width:60px">Qty</th>
-        <th style="width:110px">Unit $</th>
-        <th style="width:150px">Source URL</th>
-        <th style="width:90px;text-align:right">Ext.</th>
-        <th style="width:40px"></th>
-      </tr>
-    </thead>
-    <tbody id="rows"></tbody>
-  </table>
-
-  <div class="panels">
     <div class="calc">
       <h2>🧮 Local-LLM Capability Estimator</h2>
       <div class="body">
@@ -180,7 +166,24 @@
         <p class="note" style="font-size:11px">Rough estimates. Decode is modeled as memory-bandwidth-bound and calibrated to measured single-RTX-3090 numbers (27B≈40, 35B-A3B≈87, 70B≈18, 120B-A12B≈12 t/s). Multi-GPU decode ≈ per-card bandwidth (pipeline-parallel; tensor-parallel without NVLink is comms-bound). Spill to system RAM drops you toward system-RAM bandwidth. Prefill scales with FP16 TFLOPS.</p>
       </div>
     </div>
+  </div>
 
+  <table id="tbl">
+    <thead>
+      <tr>
+        <th style="width:150px">Item</th>
+        <th>Spec / notes</th>
+        <th style="width:60px">Qty</th>
+        <th style="width:110px">Unit $</th>
+        <th style="width:150px">Source URL</th>
+        <th style="width:90px;text-align:right">Ext.</th>
+        <th style="width:40px"></th>
+      </tr>
+    </thead>
+    <tbody id="rows"></tbody>
+  </table>
+
+  <div class="totalsrow">
     <div class="totals">
       <div class="row"><span>Subtotal</span><span id="subtotal">$0</span></div>
       <div class="row"><span>Tax <input class="num mini" id="taxPct" type="number" step="0.1" value="0" oninput="recalc()">%</span><span id="taxAmt">$0</span></div>
@@ -197,10 +200,10 @@
 <script>
 const BUILDS = [
   {
-    "slug": "high-end-4-rtx-5090-threadripper-ai-workstation",
-    "title": "High-End 4× RTX 5090 — Threadripper AI Workstation",
-    "subtitle": "128GB VRAM · Threadripper 7960X · 256GB DDR5 ECC · all-new, money-no-object contrast to the used-3090 value builds · prices a 2026-06-26 snapshot — edit / autofill to refresh",
-    "menu": "High-End 4× RTX 5090 — Threadripper AI Workstation",
+    "slug": "monster-4-rtx-pro-6000-threadripper-ai-workstation",
+    "title": "Monster 4× RTX PRO 6000 — Threadripper AI Workstation",
+    "subtitle": "384GB VRAM · 4× 96GB GDDR7 · Threadripper 7960X · 256GB DDR5 ECC · the no-limits build — frontier models fully resident · prices a 2026-06-26 snapshot — edit / autofill to refresh",
+    "menu": "🔥 4× RTX PRO 6000 (384GB)",
     "tax": 8,
     "ship": 0,
     "budget": 0,
@@ -208,14 +211,14 @@ const BUILDS = [
     "rows": [
       {
         "name": "GPU (each)",
-        "spec": "RTX 5090 32GB ×4 = 128GB VRAM (Blackwell). June-2026 AIB street ~$2,900 (ASUS TUF) to $3,300.",
+        "spec": "RTX PRO 6000 Blackwell 96GB GDDR7 ECC ×4 = 384GB VRAM. 1,792 GB/s, 24,064 CUDA cores, 600W. The reason this build catches fire.",
         "qty": 4,
-        "price": 3680,
-        "url": "https://bestvaluegpu.com/history/new-and-used-rtx-5090-price-history-and-specs/",
-        "flag": "street price — high markup vs $1,999 MSRP",
-        "vram_gb": 32,
+        "price": 8500,
+        "url": "https://www.newegg.com/nvidia-blackwell-rtx-pro-6000-96gb-graphic-card/p/N82E16814132106",
+        "flag": "street ~$8–9.2k; NVIDIA list $13,250 — verify",
+        "vram_gb": 96,
         "bw_gbs": 1792,
-        "tflops": 210
+        "tflops": 250
       },
       {
         "name": "CPU",
@@ -244,11 +247,11 @@ const BUILDS = [
       },
       {
         "name": "PSU",
-        "spec": "1600W 80+ Titanium (4× 5090 ≈ 2.3kW peak — may need dual-PSU or 240V).",
-        "qty": 1,
+        "spec": "4× RTX PRO 6000 @ 600W = 2.4kW GPU alone. Needs dual high-wattage PSUs (e.g. 2× 1600W) or a 2700W＋ unit on a 240V circuit. This is a wall-melter.",
+        "qty": 2,
         "price": 450,
         "url": "https://www.newegg.com/p/pl?d=1600W+80+plus+titanium+psu",
-        "flag": "est — verify"
+        "flag": "dual-PSU / 240V required"
       },
       {
         "name": "NVMe",
@@ -260,10 +263,10 @@ const BUILDS = [
       },
       {
         "name": "Case + cooling",
-        "spec": "Full-tower / open frame for 4× triple-slot 5090s + Threadripper AIO. Airflow is the hard part.",
+        "spec": "Full-tower / 4U workstation for 4× dual-slot blower PRO 6000s (600W each) + Threadripper AIO. High static-pressure airflow front-to-back.",
         "qty": 1,
         "price": 600,
-        "url": "https://www.newegg.com/p/pl?d=full+tower+case",
+        "url": "https://www.newegg.com/p/pl?d=full+tower+workstation+case",
         "flag": "est — varies a lot"
       }
     ]

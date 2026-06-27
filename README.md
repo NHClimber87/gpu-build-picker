@@ -36,7 +36,7 @@ The speed math is **memory-bandwidth-bound** — which is what actually governs 
 
 **▶ [Open the app](https://nhclimber87.github.io/gpu-build-picker/)** — one page, a dropdown to switch between all 4 reference builds, edit any line, watch the cost + capability score + the little machine that escalates from a desktop to an on-fire GPU cluster as you add VRAM.
 
-Or jump straight to a single build: [budget 1×3090](https://nhclimber87.github.io/gpu-build-picker/pickers/budget-1x3090-starter.html) · [G2 4×3090](https://nhclimber87.github.io/gpu-build-picker/pickers/g2-4x3090-workstation.html) · [8×3090 server](https://nhclimber87.github.io/gpu-build-picker/pickers/8x3090-192gb.html) · [4×5090](https://nhclimber87.github.io/gpu-build-picker/pickers/highend-4x5090-threadripper.html)
+Or jump straight to a single build: [budget 1×3090](https://nhclimber87.github.io/gpu-build-picker/pickers/budget-1x3090-starter.html) · [G2 4×3090](https://nhclimber87.github.io/gpu-build-picker/pickers/g2-4x3090-workstation.html) · [8×3090 server](https://nhclimber87.github.io/gpu-build-picker/pickers/8x3090-192gb.html) · [4×RTX PRO 6000](https://nhclimber87.github.io/gpu-build-picker/pickers/highend-4x6000-threadripper.html)
 
 (Served over https, so the URL autofill works here — unlike opening the file locally.)
 
@@ -94,7 +94,7 @@ It fetches through a public CORS proxy (`r.jina.ai`, then `corsproxy.io`). **It 
 | [Budget 1× RTX 3090 starter](builds/budget-1x3090-starter.json) | 24 GB | **~$2.1k** | cheapest sane entry to local LLMs |
 | [G2 — 4× RTX 3090 workstation](builds/g2-4x3090-workstation.json) | 96 GB | **~$6.7k** | a real, running rig |
 | [8× RTX 3090 — 192GB MoE server](builds/8x3090-192gb.json) | 192 GB | **~$22.6k** | Supermicro 4U, 16-ch ~400 GB/s, every GPU x16 |
-| [High-end 4× RTX 5090](builds/highend-4x5090-threadripper.json) | 128 GB | **~$18.2k** | all-new Threadripper contrast build |
+| [Monster 4× RTX PRO 6000](builds/highend-4x6000-threadripper.json) | **384 GB** | **~$43k** | no-limits build — 96GB GDDR7 per card, frontier models fully resident 🔥 |
 
 **These prices are a 2026-06-26 snapshot and will go stale — that's exactly what the editable fields + ⤓ autofill are for.** Headline parts (GPUs, CPUs) are live-sourced with a URL; supporting parts (board / RAM / PSU / case) are flagged `est — verify`. Open a picker, hit ⤓ on the parts you care about, done.
 

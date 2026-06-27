@@ -1,6 +1,7 @@
 {
-  "title": "High-End 4× RTX 5090 — Threadripper AI Workstation",
-  "subtitle": "128GB VRAM · Threadripper 7960X · 256GB DDR5 ECC · all-new, money-no-object contrast to the used-3090 value builds · prices a 2026-06-26 snapshot — edit / autofill to refresh",
+  "title": "Monster 4× RTX PRO 6000 — Threadripper AI Workstation",
+  "subtitle": "384GB VRAM · 4× 96GB GDDR7 · Threadripper 7960X · 256GB DDR5 ECC · the no-limits build — frontier models fully resident · prices a 2026-06-26 snapshot — edit / autofill to refresh",
+  "menu": "🔥 4× RTX PRO 6000 (384GB)",
   "tax_pct": 8,
   "shipping": 0,
   "budget": 0,
@@ -8,15 +9,14 @@
   "rows": [
     {
       "name": "GPU (each)",
-      "spec": "RTX 5090 32GB ×4 = 128GB VRAM (Blackwell). June-2026 AIB street ~$2,900 (ASUS TUF) to $3,300.",
+      "spec": "RTX PRO 6000 Blackwell 96GB GDDR7 ECC ×4 = 384GB VRAM. 1,792 GB/s, 24,064 CUDA cores, 600W. The reason this build catches fire.",
       "qty": 4,
-      "price": 3680,
-      "url": "https://bestvaluegpu.com/history/new-and-used-rtx-5090-price-history-and-specs/",
-      "flag": "street price — high markup vs $1,999 MSRP",
-      "vram_gb": 32,
+      "price": 8500,
+      "url": "https://www.newegg.com/nvidia-blackwell-rtx-pro-6000-96gb-graphic-card/p/N82E16814132106",
+      "flag": "street ~$8–9.2k; NVIDIA list $13,250 — verify",
+      "vram_gb": 96,
       "bw_gbs": 1792,
-      "tflops": 210,
-      "price_key": "rtx-5090"
+      "tflops": 250
     },
     {
       "name": "CPU",
@@ -45,11 +45,11 @@
     },
     {
       "name": "PSU",
-      "spec": "1600W 80+ Titanium (4× 5090 ≈ 2.3kW peak — may need dual-PSU or 240V).",
-      "qty": 1,
+      "spec": "4× RTX PRO 6000 @ 600W = 2.4kW GPU alone. Needs dual high-wattage PSUs (e.g. 2× 1600W) or a 2700W＋ unit on a 240V circuit. This is a wall-melter.",
+      "qty": 2,
       "price": 450,
       "url": "https://www.newegg.com/p/pl?d=1600W+80+plus+titanium+psu",
-      "flag": "est — verify"
+      "flag": "dual-PSU / 240V required"
     },
     {
       "name": "NVMe",
@@ -61,10 +61,10 @@
     },
     {
       "name": "Case + cooling",
-      "spec": "Full-tower / open frame for 4× triple-slot 5090s + Threadripper AIO. Airflow is the hard part.",
+      "spec": "Full-tower / 4U workstation for 4× dual-slot blower PRO 6000s (600W each) + Threadripper AIO. High static-pressure airflow front-to-back.",
       "qty": 1,
       "price": 600,
-      "url": "https://www.newegg.com/p/pl?d=full+tower+case",
+      "url": "https://www.newegg.com/p/pl?d=full+tower+workstation+case",
       "flag": "est — varies a lot"
     }
   ]

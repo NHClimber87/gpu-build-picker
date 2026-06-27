@@ -40,7 +40,8 @@
   .urlcell a{color:var(--accent2);text-decoration:none;font-size:12px;max-width:120px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
   .urlcell a:hover{text-decoration:underline}
   .mini{padding:4px 7px;font-size:12px}
-  .panels{display:flex;flex-wrap:wrap;gap:18px;margin-top:18px;align-items:flex-start}
+  .toprow{display:flex;flex-wrap:wrap;gap:18px;margin:14px 0;align-items:stretch}
+  .totalsrow{display:flex;margin-top:18px}
   .totals{margin-left:auto;width:340px;background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:14px 16px}
   .totals .row{display:flex;justify-content:space-between;padding:5px 0;font-variant-numeric:tabular-nums}
   .totals .row.grand{border-top:1px solid var(--line);margin-top:6px;padding-top:10px;font-size:18px;font-weight:700;color:var(--accent)}
@@ -73,7 +74,7 @@
   .pbar{flex:1;height:8px;background:#0b1610;border:1px solid var(--line);border-radius:5px;overflow:hidden}
   .pbar > i{display:block;height:100%;background:linear-gradient(90deg,#15683b,var(--accent));transition:width .3s}
   /* machine build stage */
-  .stage{position:relative;margin:14px 0;padding:14px 18px;background:linear-gradient(180deg,#0b1812,#0a0f0c);border:1px solid var(--line);border-radius:12px;display:flex;align-items:center;gap:20px;overflow:hidden}
+  .stage{flex:1 1 480px;position:relative;padding:14px 18px;background:linear-gradient(180deg,#0b1812,#0a0f0c);border:1px solid var(--line);border-radius:12px;display:flex;align-items:center;gap:20px;overflow:hidden}
   .stage svg{flex:0 0 auto;filter:drop-shadow(0 0 10px #36e27b22)}
   .stage .cap{flex:1}
   .stage .tier{font-size:19px;font-weight:800;color:var(--accent2);margin-bottom:3px;letter-spacing:.2px}
@@ -116,7 +117,8 @@
     <span id="saveState" class="note"></span>
   </div>
 
-  <!-- ===== machine build stage (escalates as parts are added) ===== -->
+  <!-- ===== machine + capability estimator, side by side ===== -->
+  <div class="toprow">
   <div class="stage">
     <svg id="machine" width="270" height="170" viewBox="0 0 270 170" aria-label="build visualization"></svg>
     <div class="cap">
@@ -126,22 +128,6 @@
     </div>
   </div>
 
-  <table id="tbl">
-    <thead>
-      <tr>
-        <th style="width:150px">Item</th>
-        <th>Spec / notes</th>
-        <th style="width:60px">Qty</th>
-        <th style="width:110px">Unit $</th>
-        <th style="width:150px">Source URL</th>
-        <th style="width:90px;text-align:right">Ext.</th>
-        <th style="width:40px"></th>
-      </tr>
-    </thead>
-    <tbody id="rows"></tbody>
-  </table>
-
-  <div class="panels">
     <div class="calc">
       <h2>🧮 Local-LLM Capability Estimator</h2>
       <div class="body">
@@ -180,7 +166,24 @@
         <p class="note" style="font-size:11px">Rough estimates. Decode is modeled as memory-bandwidth-bound and calibrated to measured single-RTX-3090 numbers (27B≈40, 35B-A3B≈87, 70B≈18, 120B-A12B≈12 t/s). Multi-GPU decode ≈ per-card bandwidth (pipeline-parallel; tensor-parallel without NVLink is comms-bound). Spill to system RAM drops you toward system-RAM bandwidth. Prefill scales with FP16 TFLOPS.</p>
       </div>
     </div>
+  </div>
 
+  <table id="tbl">
+    <thead>
+      <tr>
+        <th style="width:150px">Item</th>
+        <th>Spec / notes</th>
+        <th style="width:60px">Qty</th>
+        <th style="width:110px">Unit $</th>
+        <th style="width:150px">Source URL</th>
+        <th style="width:90px;text-align:right">Ext.</th>
+        <th style="width:40px"></th>
+      </tr>
+    </thead>
+    <tbody id="rows"></tbody>
+  </table>
+
+  <div class="totalsrow">
     <div class="totals">
       <div class="row"><span>Subtotal</span><span id="subtotal">$0</span></div>
       <div class="row"><span>Tax <input class="num mini" id="taxPct" type="number" step="0.1" value="0" oninput="recalc()">%</span><span id="taxAmt">$0</span></div>

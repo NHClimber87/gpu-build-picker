@@ -17,13 +17,13 @@ ORDER = [
     "budget-1x3090-starter",
     "g2-4x3090-workstation",
     "8x3090-192gb",
-    "highend-4x5090-threadripper",
+    "highend-4x6000-threadripper",
 ]
 MENU = {
     "budget-1x3090-starter":        "💻  Budget 1× RTX 3090  (~$2k)",
     "g2-4x3090-workstation":        "🖥️  G2 — 4× RTX 3090  (96GB)",
     "8x3090-192gb":                 "🗄️  8× RTX 3090 Server  (192GB)",
-    "highend-4x5090-threadripper":  "🔥  4× RTX 5090 High-End  (128GB)",
+    "highend-4x6000-threadripper":  "🔥  4× RTX PRO 6000  (384GB)",
 }
 
 def main():
