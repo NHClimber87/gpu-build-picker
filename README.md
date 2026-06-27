@@ -19,6 +19,17 @@ PCPartPicker is great until you're pricing *used 3090s on eBay*, *refurb EPYC on
 
 That's the whole thing. It's ~250 lines of vanilla JS.
 
+## ▶ Try it live (no install)
+
+Open a reference build right in your browser — edit prices, hit ⤓ to autofill from a URL, watch the budget math:
+
+- **[Budget 1× RTX 3090 starter (~$2.1k)](https://nhclimber87.github.io/gpu-build-picker/pickers/budget-1x3090-starter.html)**
+- **[G2 — 4× RTX 3090 workstation (~$6.7k)](https://nhclimber87.github.io/gpu-build-picker/pickers/g2-4x3090-workstation.html)**
+- **[8× RTX 3090 — 192GB MoE server (~$22.6k)](https://nhclimber87.github.io/gpu-build-picker/pickers/8x3090-192gb.html)**
+- **[High-end 4× RTX 5090 (~$18.2k)](https://nhclimber87.github.io/gpu-build-picker/pickers/highend-4x5090-threadripper.html)**
+
+(Served over https, so the URL autofill works here — unlike opening the file locally.)
+
 ## Quick start
 
 ```bash
