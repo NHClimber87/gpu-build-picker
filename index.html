@@ -81,6 +81,14 @@
   .hwgrid .val{display:flex;align-items:center;gap:6px}
   .pick{display:flex;gap:8px;margin:10px 0}
   .pick select{flex:1}
+  .kvrow{display:flex;gap:14px;align-items:flex-end;margin:10px 0 2px}
+  .kvrow label{font-size:11px;color:var(--dim);display:block;text-transform:uppercase;letter-spacing:.3px;margin-bottom:5px}
+  .kvrow label b{color:var(--accent2);font-variant-numeric:tabular-nums}
+  .kvctx{flex:1} .kvq{flex:0 0 130px}
+  input[type=range]{-webkit-appearance:none;appearance:none;width:100%;height:6px;border-radius:5px;background:#0b1610;border:1px solid var(--line);padding:0;cursor:pointer}
+  input[type=range]:focus{outline:none;border-color:var(--accent);box-shadow:0 0 0 3px var(--glow)}
+  input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:16px;height:16px;border-radius:50%;background:var(--accent);border:2px solid #06110b;box-shadow:0 0 6px var(--glow);cursor:pointer}
+  input[type=range]::-moz-range-thumb{width:14px;height:14px;border-radius:50%;background:var(--accent);border:2px solid #06110b;cursor:pointer}
   .scorebox{display:flex;align-items:center;gap:16px;margin-top:12px;padding:12px;border:1px solid var(--line);border-radius:8px;background:#0b1610}
   .score{font-size:40px;font-weight:800;line-height:1;min-width:96px;text-align:center}
   .score small{display:block;font-size:11px;font-weight:600;color:var(--dim);margin-top:4px;text-transform:uppercase}
@@ -176,11 +184,28 @@
             <option value="16">FP16 (16 bpw)</option>
           </select>
         </div>
+        <div class="kvrow">
+          <div class="kvctx">
+            <label>Context window <b id="ctxLabel">32K</b></label>
+            <input type="range" id="ctxSlider" min="0" max="8" step="1" value="3" oninput="capCalc()">
+          </div>
+          <div class="kvq">
+            <label>KV cache quant</label>
+            <select id="kvquant" onchange="capCalc()">
+              <option value="1">f16 (full)</option>
+              <option value="0.53">q8_0 (~½)</option>
+              <option value="0.375">q5_1 (~⅜)</option>
+              <option value="0.28">q4_0 (~¼)</option>
+            </select>
+          </div>
+        </div>
         <div class="scorebox">
           <div class="score" id="scoreVal" style="color:var(--accent)">–<small>capability</small></div>
           <div class="verdict">
             <div class="fit" id="capFit">—</div>
-            <div class="stat"><span>Model resident size</span><b id="capSize">—</b></div>
+            <div class="stat"><span>Model weights</span><b id="capSize">—</b></div>
+            <div class="stat"><span>KV cache <span class="dim" id="capKvCtx"></span></span><b id="capKv">—</b></div>
+            <div class="stat"><span>Total resident</span><b id="capTot">—</b></div>
             <div class="stat"><span>Est. decode (1 user)</span><b id="capDec">—</b></div>
             <div class="stat"><span>Est. prefill</span><b id="capPre">—</b></div>
           </div>
@@ -190,7 +215,7 @@
           <div class="barrow"><span class="lab">Decode speed</span><span class="pbar"><i id="barSpeed"></i></span></div>
         </div>
         <p class="note" id="capNote"></p>
-        <p class="note" style="font-size:11px">Rough estimates. Decode is modeled as memory-bandwidth-bound and calibrated to measured 3090 numbers (dense 27B≈40, 35B-A3B≈87, 70B≈18 t/s on one card; 120B-A12B MoE≈67 t/s resident on a 4×3090 box). MoE decode tracks ACTIVE params, so a big MoE that fits in VRAM runs far faster than its total size suggests. Multi-GPU decode ≈ per-card bandwidth (pipeline-parallel; tensor-parallel without NVLink is comms-bound). Spill to system RAM drops you toward system-RAM bandwidth. Prefill scales with FP16 TFLOPS. Capability reads ONLY parts' specs — an unknown spec is treated as unknown, never 0.</p>
+        <p class="note" style="font-size:11px">Rough estimates. Decode is modeled as memory-bandwidth-bound and calibrated to measured 3090 numbers (dense 27B≈40, 35B-A3B≈87, 70B≈18 t/s on one card; 120B-A12B MoE≈67 t/s resident on a 4×3090 box). MoE decode tracks ACTIVE params, so a big MoE that fits in VRAM runs far faster than its total size suggests. Multi-GPU decode ≈ per-card bandwidth (pipeline-parallel; tensor-parallel without NVLink is comms-bound). Spill to system RAM drops you toward system-RAM bandwidth. Prefill scales with FP16 TFLOPS. KV-cache size = weights' sibling cost: it grows linearly with context and shrinks with KV quant (f16→q8_0 ≈ half, q4_0 ≈ quarter); GQA + MoE keep it modest. KV is f16-estimated per model and added to the footprint that must fit. Capability reads ONLY parts' specs — an unknown spec is treated as unknown, never 0.</p>
       </div>
     </div>
   </div>
@@ -1097,15 +1122,18 @@ const EST_UNCERT = 0.20;   // ± band applied to the estimated (unverified) port
 // model presets: gbtok = empirical GB moved per token at Q4 in the FITS-IN-VRAM case (encodes arch
 // overhead). For MoE it tracks ACTIVE params + always-on shared/attention weights, NOT total params —
 // the spill-to-RAM penalty is applied separately via effBw, so it must NOT be baked in here.
+// kvk = GB of KV cache per 1K tokens at f16 (≈ 2·layers·kv_heads·head_dim·2B). GQA + MoE keep it small.
 const MODELS = [
-  {id:"7b",    label:"7–8B dense",        total:7.5, active:7.5, gbtok:5.6},
-  {id:"14b",   label:"14B dense",         total:14,  active:14,  gbtok:10.5},
-  {id:"27b",   label:"27–32B dense",      total:29,  active:29,  gbtok:23.4},
-  {id:"35a3",  label:"35B-A3B MoE",       total:35,  active:3,   gbtok:10.8},
-  {id:"70b",   label:"70B dense",         total:70,  active:70,  gbtok:52},
-  {id:"120a12",label:"120B-A12B MoE",     total:120, active:12,  gbtok:15},
-  {id:"235a22",label:"235B-A22B MoE",     total:235, active:22,  gbtok:26},
+  {id:"7b",    label:"7–8B dense",        total:7.5, active:7.5, gbtok:5.6, kvk:0.06},
+  {id:"14b",   label:"14B dense",         total:14,  active:14,  gbtok:10.5,kvk:0.20},
+  {id:"27b",   label:"27–32B dense",      total:29,  active:29,  gbtok:23.4,kvk:0.25},
+  {id:"35a3",  label:"35B-A3B MoE",       total:35,  active:3,   gbtok:10.8,kvk:0.10},
+  {id:"70b",   label:"70B dense",         total:70,  active:70,  gbtok:52,  kvk:0.32},
+  {id:"120a12",label:"120B-A12B MoE",     total:120, active:12,  gbtok:15,  kvk:0.25},
+  {id:"235a22",label:"235B-A22B MoE",     total:235, active:22,  gbtok:26,  kvk:0.20},
 ];
+const CTXVALS=[4,8,16,32,64,128,256,512,1024];   // KV slider index -> context window in K tokens
+const ctxLbl=k=>k>=1024?(k/1024)+"M":k+"K";
 
 // ===================== catalog plumbing (data-driven) =====================
 function normPrice(p){
@@ -1397,23 +1425,31 @@ function capCalc(){
   const m=MODELS.find(x=>x.id===document.getElementById('mdl').value)||MODELS[3];
   const bpw=parseFloat(document.getElementById('quant').value)||4.5;
   const vram=val('hwVram'), ram=val('hwRam'), perCardBw=val('hwBw'), sysBw=val('hwSysBw')||40, tflops=val('hwTflops');
-  const resident = m.total*bpw/8;
+  const ctxK=CTXVALS[parseInt(val('ctxSlider'))||0]||32;
+  const kvf=parseFloat(document.getElementById('kvquant').value)||1;
+  const weights = m.total*bpw/8;
+  const kv = (m.kvk||0)*ctxK*kvf;          // KV cache GB at this context + quant
+  const resident = weights + kv;            // weights + KV is what must actually fit
   const gbtok = m.gbtok*(bpw/4.5);
-  document.getElementById('capSize').textContent = resident.toFixed(0)+" GB @ Q"+(bpw|0);
+  document.getElementById('ctxLabel').textContent = ctxLbl(ctxK);
+  document.getElementById('capSize').textContent = weights.toFixed(0)+" GB @ Q"+(bpw|0);
+  document.getElementById('capKvCtx').textContent = "@ "+ctxLbl(ctxK);
+  document.getElementById('capKv').textContent = (kv>=10?kv.toFixed(0):kv.toFixed(1))+" GB";
+  document.getElementById('capTot').textContent = resident.toFixed(0)+" GB";
 
   let fit, fitColor, effBw, note="";
   const usableVram=vram*0.92, usableTotal=(vram+ram)*0.9;
   if(resident<=usableVram){
     fit="✓ Fits in VRAM"; fitColor="var(--accent)"; effBw=perCardBw||936;
-    note="Whole model on the GPU(s). Best case.";
+    note="Weights + "+(kv>=10?kv.toFixed(0):kv.toFixed(1))+" GB of KV at "+ctxLbl(ctxK)+" all live on the GPU(s). Best case.";
   } else if(resident<=usableTotal){
     fit="◐ Spills to system RAM"; fitColor="var(--warn)";
     const inV=Math.max(0,usableVram)/resident, sp=1-inV;
     effBw = 1/((inV/(perCardBw||936))+(sp/sysBw));
-    note="Part of the model lives in system RAM — decode is dragged toward RAM bandwidth ("+sysBw.toFixed(0)+" GB/s). MoE models tolerate this far better than dense.";
+    note="Weights + KV ("+(kv>=10?kv.toFixed(0):kv.toFixed(1))+" GB at "+ctxLbl(ctxK)+") exceed VRAM — part lives in system RAM and decode is dragged toward RAM bandwidth ("+sysBw.toFixed(0)+" GB/s). Shrink the context or KV quant to claw it back into VRAM. MoE tolerates spill better than dense.";
   } else {
     fit="✗ Won't fit"; fitColor="var(--bad)"; effBw=0;
-    note="Needs more VRAM+RAM than this build has. Drop the quant, pick a smaller / MoE model, or add memory.";
+    note="Weights + KV at "+ctxLbl(ctxK)+" need more VRAM+RAM than this build has. Drop the context, the KV quant, the weight quant, or pick a smaller / MoE model.";
   }
   document.getElementById('capFit').textContent=fit;
   document.getElementById('capFit').style.color=fitColor;
