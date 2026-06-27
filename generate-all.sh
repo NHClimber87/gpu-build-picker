@@ -1,11 +1,15 @@
 #!/usr/bin/env bash
-# Regenerate every picker in pickers/ from the BOM JSONs in builds/.
+# Regenerate index.html + every per-build picker in pickers/ from catalog.json.
+# Validates the catalog first (the schema-guardian) — a broken catalog must not ship.
 set -euo pipefail
 cd "$(dirname "$0")"
+
+python3 validate.py
+
 mkdir -p pickers
-for f in builds/*.json; do
-  name="$(basename "$f" .json)"
-  python3 build.py "$f" "pickers/$name.html"
+ids=$(python3 -c "import json;print(' '.join(b['id'] for b in json.load(open('catalog.json'))['builds']))")
+for id in $ids; do
+  python3 build.py "$id" "pickers/$id.html"
   echo
 done
 python3 build-index.py
