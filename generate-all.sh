@@ -8,4 +8,5 @@ for f in builds/*.json; do
   python3 build.py "$f" "pickers/$name.html"
   echo
 done
-echo "Done. Open any pickers/*.html in a browser."
+python3 build-index.py
+echo "Done. Open index.html (all builds, switchable) or any pickers/*.html."
