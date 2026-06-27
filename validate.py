@@ -96,6 +96,8 @@ def main():
                 errs.append(f"{iw}: qty must be a number")
             if "price_override" in it:
                 check_price(it["price_override"], f"{iw}.price_override", errs, allow_number=True)
+            if "watts_override" in it and not isinstance(it["watts_override"], (int, float)):
+                errs.append(f"{iw}: watts_override must be a number")
 
     if errs:
         print(f"INVALID — {len(errs)} problem(s) in {os.path.basename(path)}:")

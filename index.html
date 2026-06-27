@@ -274,6 +274,7 @@
         <div class="stat"><span>Hardware (upfront)</span><b id="tcoHw">—</b></div>
         <div class="stat"><span>Avg power draw <span class="dim" id="tcoAvgCtx"></span></span><b id="tcoAvg">—</b></div>
         <div class="stat"><span>Electricity <span class="dim" id="tcoEnergyCtx"></span></span><b id="tcoEnergy">—</b></div>
+        <div class="stat" id="tcoSaveRow" style="display:none"><span>⚡ Power cap saves <span class="dim" id="tcoSaveCtx"></span></span><b id="tcoSave" style="color:var(--accent2)">—</b></div>
         <div class="stat tcototal"><span>Total cost of ownership</span><b id="tcoTotal">—</b></div>
         <div class="stat"><span>Effective $/month</span><b id="tcoMonth">—</b></div>
       </div>
@@ -1017,11 +1018,13 @@ const CATALOG_BAKED = {
       "items": [
         {
           "part_id": "gpu-rtx3090",
-          "qty": 3
+          "qty": 3,
+          "watts_override": 200
         },
         {
           "part_id": "gpu-rtx3090-ti",
-          "qty": 1
+          "qty": 1,
+          "watts_override": 200
         },
         {
           "part_id": "cpu-ryzen-9-9900x",
@@ -1224,6 +1227,11 @@ function resolveItem(it){
     _price: rec,
   };
   ['vram_gb','bw_gbs','tflops','ram_gb','watts'].forEach(k=>{ if(specs[k]!=null) row[k]=specs[k]; });
+  row.watts_stock = specs.watts!=null ? specs.watts : null;          // catalog stock TDP
+  if(it.watts_override!=null){ row.watts = it.watts_override;        // build-local power cap
+    if(row.watts_stock!=null && it.watts_override<row.watts_stock)
+      row.flag = (row.flag?row.flag+' · ':'')+it.watts_override+'W cap (stock '+row.watts_stock+'W)';
+  }
   if(row.category==='gpu' && row.vram_gb==null) row.flag = (row.flag?row.flag+' · ':'')+'VRAM spec unknown';
   return row;
 }
@@ -1447,15 +1455,17 @@ function recalc(){
 }
 
 // ---- total cost of ownership: upfront hardware + N years of electricity ----
-let lastGrand=0;
+let lastGrand=0, stockLoadW=0;
+const tcoEnergy=(w,util,years,rate)=>(w*util+w*IDLE_FRAC*(1-util))/1000*HRS_PER_YR*years*rate;
 function tcoCalc(){
   const years=val('tcoYears')||4, util=Math.max(0,Math.min(1,(val('tcoUtil')||0)/100)), rate=val('tcoRate')||0, loadW=val('tcoLoad')||0;
   const hw=document.getElementById('tcoHw'); if(!hw) return;
   hw.textContent=money(lastGrand);
-  const blanks=['tcoAvg','tcoEnergy','tcoTotal','tcoMonth'];
+  const saveRow=document.getElementById('tcoSaveRow');
   if(loadW<=0){
-    blanks.forEach(id=>document.getElementById(id).textContent='—');
+    ['tcoAvg','tcoEnergy','tcoTotal','tcoMonth'].forEach(id=>document.getElementById(id).textContent='—');
     document.getElementById('tcoAvgCtx').textContent=''; document.getElementById('tcoEnergyCtx').textContent='';
+    saveRow.style.display='none';
     document.getElementById('tcoNote').textContent='Add components with a power spec (GPUs, CPU) — or type a full-load draw — to estimate running cost.';
     return;
   }
@@ -1463,6 +1473,12 @@ function tcoCalc(){
   const kwh  = avgW/1000*HRS_PER_YR*years;
   const energy = kwh*rate;
   const tco = lastGrand + energy;
+  if(stockLoadW>loadW+1){                                  // a power cap is in effect — show what it saves
+    const save = tcoEnergy(stockLoadW,util,years,rate) - energy;
+    document.getElementById('tcoSaveCtx').textContent='vs '+stockLoadW+' W stock TDP, over '+years+' yr';
+    document.getElementById('tcoSave').textContent=money(Math.round(save));
+    saveRow.style.display='';
+  } else saveRow.style.display='none';
   document.getElementById('tcoAvgCtx').textContent='@ '+Math.round(util*100)+'% util';
   document.getElementById('tcoAvg').textContent=Math.round(avgW)+' W';
   document.getElementById('tcoEnergyCtx').textContent=Math.round(kwh).toLocaleString()+' kWh / '+years+' yr';
@@ -1498,16 +1514,18 @@ function renderConfidence(sub){
 
 // ===================== capability estimator =====================
 function deriveHw(){
-  let vram=0, ram=0, tflops=0, ngpu=0, bwMax=0, watts=0;
+  let vram=0, ram=0, tflops=0, ngpu=0, bwMax=0, watts=0, wattsStock=0;
   bom.forEach(r=>{
     const q=r.qty||0;
     if(r.vram_gb){ vram+=r.vram_gb*q; ngpu+=q; if(r.bw_gbs) bwMax=Math.max(bwMax,r.bw_gbs); }
     if(r.tflops) tflops+=r.tflops*q;
     if(r.ram_gb) ram+=r.ram_gb*q;
     if(r.watts) watts+=r.watts*q;
+    if(r.watts_stock!=null) wattsStock+=r.watts_stock*q; else if(r.watts) wattsStock+=r.watts*q;
   });
   // full-load wall draw = (components + platform baseline) / PSU efficiency
   const loadW = watts ? Math.round((watts+PLATFORM_W)/PSU_EFF) : 0;
+  stockLoadW = wattsStock ? Math.round((wattsStock+PLATFORM_W)/PSU_EFF) : 0;  // uncapped baseline for the savings line
   setIf('hwVram',vram); setIf('hwRam',ram); setIf('hwTflops',Math.round(tflops));
   setIf('hwNgpu',ngpu); setIf('hwBw',bwMax||0); setIf('hwSysBw',SYS_BW||0);
   setIf('tcoLoad',loadW);

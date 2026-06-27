@@ -94,6 +94,10 @@
         "price_override": {
           "description": "Freeze a build-local price (e.g. an as-bought deal). Full price record, or a bare number.",
           "oneOf": [{"$ref": "#/$defs/price"}, {"type": "number"}]
+        },
+        "watts_override": {
+          "type": "number",
+          "description": "Build-local power draw in watts, overriding the part's stock TDP (e.g. a GPU power cap). Drives TCO + the 'vs stock TDP' savings line."
         }
       }
     },

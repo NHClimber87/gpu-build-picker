@@ -729,11 +729,13 @@
       "items": [
         {
           "part_id": "gpu-rtx3090",
-          "qty": 3
+          "qty": 3,
+          "watts_override": 200
         },
         {
           "part_id": "gpu-rtx3090-ti",
-          "qty": 1
+          "qty": 1,
+          "watts_override": 200
         },
         {
           "part_id": "cpu-ryzen-9-9900x",
