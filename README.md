@@ -15,7 +15,8 @@ PCPartPicker is great until you're pricing *used 3090s on eBay*, *refurb EPYC on
 - keeps the **parts as data** (`catalog.json`) and the HTML a dumb renderer,
 - puts a **freshness badge on every price** — sourced (green) / estimate (amber) / stale (red) — so a number is never silently wrong,
 - does the **tax + shipping + "am I under budget" math** live,
-- **tells you what models the build will run, and how fast** — a built-in capability estimator,
+- **tells you what models the build will run, and how fast** — a built-in capability estimator (weights **+ KV cache** vs VRAM, with a context slider, KV-quant picker, and full / hybrid-SSM / sliding-window attention so MoE + hybrid models size correctly),
+- shows the **total cost of ownership** — upfront hardware **+ N years of electricity** at your utilization and rate, with power auto-summed from the parts,
 - can **auto-refresh** the volatile prices weekly, and let buyers **submit prices they paid** — all with no backend.
 
 That's the whole thing. Vanilla JS, no dependencies.

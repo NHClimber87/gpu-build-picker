@@ -12,7 +12,8 @@
       "specs": {
         "vram_gb": 24,
         "bw_gbs": 936,
-        "tflops": 71
+        "tflops": 71,
+        "watts": 350
       },
       "note": "Used market — varies; shop around.",
       "price": {
@@ -57,7 +58,8 @@
       "specs": {
         "vram_gb": 24,
         "bw_gbs": 1008,
-        "tflops": 80
+        "tflops": 80,
+        "watts": 450
       },
       "note": "Used market — varies.",
       "price": {
@@ -95,7 +97,8 @@
       "specs": {
         "vram_gb": 96,
         "bw_gbs": 1792,
-        "tflops": 250
+        "tflops": 250,
+        "watts": 600
       },
       "price": {
         "value": 8500,
@@ -120,7 +123,8 @@
       "specs": {
         "vram_gb": 32,
         "bw_gbs": 1792,
-        "tflops": 209
+        "tflops": 209,
+        "watts": 575
       },
       "price": {
         "value": 3658,
@@ -154,7 +158,9 @@
       "category": "cpu",
       "name": "AMD Ryzen 7 7700",
       "spec": "Zen4, 8c/16t, AM5, 65W — efficient.",
-      "specs": {},
+      "specs": {
+        "watts": 65
+      },
       "price": {
         "value": 270,
         "estimated": true,
@@ -174,7 +180,9 @@
       "category": "cpu",
       "name": "AMD Ryzen 9 9900X",
       "spec": "Zen5, 12c/24t, AM5.",
-      "specs": {},
+      "specs": {
+        "watts": 120
+      },
       "price": {
         "value": 329,
         "estimated": false,
@@ -194,7 +202,9 @@
       "category": "cpu",
       "name": "AMD EPYC 7543",
       "spec": "Zen3 Milan, 32c, DDR4-3200.",
-      "specs": {},
+      "specs": {
+        "watts": 225
+      },
       "price": {
         "value": 940,
         "estimated": true,
@@ -214,7 +224,9 @@
       "category": "cpu",
       "name": "AMD Threadripper 7960X",
       "spec": "Zen4, 24c/48t, sTR5. 88 PCIe 5.0 lanes — real x16 to every GPU.",
-      "specs": {},
+      "specs": {
+        "watts": 350
+      },
       "price": {
         "value": 1099,
         "estimated": false,
@@ -754,7 +766,8 @@
         }
       ],
       "default_model": "120a12",
-      "default_quant": 4.5
+      "default_quant": 4.5,
+      "default_attn": "hybrid"
     },
     {
       "id": "8x3090-192gb",

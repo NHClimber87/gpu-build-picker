@@ -31,7 +31,8 @@
         "vram_gb": {"type": "number"},
         "bw_gbs": {"type": "number"},
         "tflops": {"type": "number"},
-        "ram_gb": {"type": "number"}
+        "ram_gb": {"type": "number"},
+        "watts": {"type": "number"}
       }
     },
     "source": {

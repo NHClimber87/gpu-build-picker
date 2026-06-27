@@ -84,7 +84,14 @@
   .kvrow{display:flex;gap:14px;align-items:flex-end;margin:10px 0 2px}
   .kvrow label{font-size:11px;color:var(--dim);display:block;text-transform:uppercase;letter-spacing:.3px;margin-bottom:5px}
   .kvrow label b{color:var(--accent2);font-variant-numeric:tabular-nums}
-  .kvctx{flex:1} .kvq{flex:0 0 130px}
+  .kvctx{flex:1} .kvq{flex:0 0 116px}
+  .tco{margin-top:18px}
+  .tcogrid{display:grid;grid-template-columns:repeat(4,1fr);gap:8px 14px;margin-bottom:12px}
+  .tcogrid label{font-size:11px;color:var(--dim);display:block;text-transform:uppercase;letter-spacing:.3px;margin-bottom:4px}
+  .tcogrid input.num{width:100%}
+  .tcoout{border:1px solid var(--line);border-radius:8px;background:#0b1610;padding:8px 12px}
+  .tcoout .stat.tcototal{font-size:17px;font-weight:700;color:var(--accent);border-top:1px solid var(--line);border-bottom:none;margin-top:4px;padding-top:8px}
+  .tcoout .stat.tcototal b{color:var(--accent)}
   input[type=range]{-webkit-appearance:none;appearance:none;width:100%;height:6px;border-radius:5px;background:#0b1610;border:1px solid var(--line);padding:0;cursor:pointer}
   input[type=range]:focus{outline:none;border-color:var(--accent);box-shadow:0 0 0 3px var(--glow)}
   input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:16px;height:16px;border-radius:50%;background:var(--accent);border:2px solid #06110b;box-shadow:0 0 6px var(--glow);cursor:pointer}
@@ -190,12 +197,20 @@
             <input type="range" id="ctxSlider" min="0" max="8" step="1" value="3" oninput="capCalc()">
           </div>
           <div class="kvq">
-            <label>KV cache quant</label>
+            <label>KV quant</label>
             <select id="kvquant" onchange="capCalc()">
               <option value="1">f16 (full)</option>
               <option value="0.53">q8_0 (~½)</option>
               <option value="0.375">q5_1 (~⅜)</option>
               <option value="0.28">q4_0 (~¼)</option>
+            </select>
+          </div>
+          <div class="kvq">
+            <label>Attention</label>
+            <select id="attn" onchange="capCalc()">
+              <option value="full">Full</option>
+              <option value="hybrid">Hybrid SSM</option>
+              <option value="swa">Sliding-win</option>
             </select>
           </div>
         </div>
@@ -246,6 +261,26 @@
     </div>
   </div>
 
+  <div class="calc tco">
+    <h2>💡 Total cost of ownership</h2>
+    <div class="body">
+      <div class="tcogrid">
+        <div><label>Years</label><input class="num" id="tcoYears" type="number" step="1" value="4" oninput="tcoCalc()"></div>
+        <div><label>Utilization %</label><input class="num" id="tcoUtil" type="number" step="5" value="70" oninput="tcoCalc()"></div>
+        <div><label>Electricity $/kWh</label><input class="num" id="tcoRate" type="number" step="0.01" value="0.17" oninput="tcoCalc()"></div>
+        <div><label>Full-load draw (W)</label><input class="num" id="tcoLoad" type="number" step="10" oninput="tcoCalc()"></div>
+      </div>
+      <div class="tcoout">
+        <div class="stat"><span>Hardware (upfront)</span><b id="tcoHw">—</b></div>
+        <div class="stat"><span>Avg power draw <span class="dim" id="tcoAvgCtx"></span></span><b id="tcoAvg">—</b></div>
+        <div class="stat"><span>Electricity <span class="dim" id="tcoEnergyCtx"></span></span><b id="tcoEnergy">—</b></div>
+        <div class="stat tcototal"><span>Total cost of ownership</span><b id="tcoTotal">—</b></div>
+        <div class="stat"><span>Effective $/month</span><b id="tcoMonth">—</b></div>
+      </div>
+      <p class="note" id="tcoNote"></p>
+    </div>
+  </div>
+
   <p class="legend"><b>Provenance:</b> every price carries a freshness badge — <span class="badge green">● sourced</span> fresh (&lt;7d), <span class="badge amber">◌ estimate</span> needs verifying, <span class="badge red">● stale</span> (&gt;21d). Estimates are flagged, never hidden; nothing is ever fabricated. <b>Autofill:</b> paste a product URL and click <b>⤓</b> — it reads <i>structured data</i> only, through a public CORS proxy, and says so when it can't.</p>
 
 </div>
@@ -274,6 +309,23 @@ const MODELS = [
 ];
 const CTXVALS=[4,8,16,32,64,128,256,512,1024];   // KV slider index -> context window in K tokens
 const ctxLbl=k=>k>=1024?(k/1024)+"M":k+"K";
+// Attention type -> how KV scales with context.
+//  full   : every layer keeps a growing KV cache (KV ∝ context)
+//  hybrid : SSM/Mamba + a few attention layers (Nemotron-H, Jamba, MiniMax, Qwen3-Next) — only ~15%
+//           of layers keep a growing KV; the SSM state is ~constant and tiny
+//  swa    : sliding-window — local layers cap KV at the window; ~20% global layers still grow
+const HYBRID_KV_FRAC=0.15, SWA_WINDOW_K=8, SWA_GLOBAL_FRAC=0.2;
+function kvCtxEff(attn,ctxK){
+  if(attn==='hybrid') return ctxK*HYBRID_KV_FRAC;
+  if(attn==='swa')    return Math.min(ctxK,SWA_WINDOW_K)+Math.max(0,ctxK-SWA_WINDOW_K)*SWA_GLOBAL_FRAC;
+  return ctxK;
+}
+const attnShort={full:"",hybrid:"hybrid",swa:"SWA"};
+// TCO power model
+const PLATFORM_W=60;     // mobo + RAM + NVMe + fans baseline
+const PSU_EFF=0.90;      // gold-class wall-draw efficiency
+const IDLE_FRAC=0.12;    // idle draw as a fraction of full load
+const HRS_PER_YR=8766;
 
 // ===================== catalog plumbing (data-driven) =====================
 function normPrice(p){
@@ -298,7 +350,7 @@ function resolveItem(it){
     flag: it.note || (rec&&rec.note) || part.note || "",
     _price: rec,
   };
-  ['vram_gb','bw_gbs','tflops','ram_gb'].forEach(k=>{ if(specs[k]!=null) row[k]=specs[k]; });
+  ['vram_gb','bw_gbs','tflops','ram_gb','watts'].forEach(k=>{ if(specs[k]!=null) row[k]=specs[k]; });
   if(row.category==='gpu' && row.vram_gb==null) row.flag = (row.flag?row.flag+' · ':'')+'VRAM spec unknown';
   return row;
 }
@@ -306,7 +358,7 @@ function resolveBuild(b){
   return {
     slug: b.id, title: b.name, subtitle: b.subtitle||"", menu: b.menu||b.name,
     tax: b.tax_pct||0, ship: b.shipping||0, budget: b.budget||0, sysbw: b.sys_bw_gbs||0,
-    default_model: b.default_model||"", default_quant: b.default_quant||"",
+    default_model: b.default_model||"", default_quant: b.default_quant||"", default_attn: b.default_attn||"",
     rows: (b.items||[]).map(resolveItem),
   };
 }
@@ -422,9 +474,10 @@ function loadBuild(i){
   document.getElementById('shipAmt').value=B.ship||0;
   document.getElementById('budgetNote').style.display='';
   bom=load();
-  ['hwVram','hwRam','hwBw','hwSysBw','hwNgpu','hwTflops'].forEach(id=>{const el=document.getElementById(id);if(el)delete el.dataset.auto;});
+  ['hwVram','hwRam','hwBw','hwSysBw','hwNgpu','hwTflops','tcoLoad'].forEach(id=>{const el=document.getElementById(id);if(el)delete el.dataset.auto;});
   const mEl=document.getElementById('mdl'); if(mEl&&B.default_model) mEl.value=B.default_model;
   const qEl=document.getElementById('quant'); if(qEl&&B.default_quant) qEl.value=String(B.default_quant);
+  const aEl=document.getElementById('attn'); if(aEl) aEl.value=B.default_attn||'full';
   render(); deriveHw();
   const sel=document.getElementById('buildSel'); if(sel) sel.value=i;
 }
@@ -514,8 +567,36 @@ function recalc(){
       : `<span style="color:var(--bad)">${money(-head)} over</span>`;
     document.getElementById('budgetNote').style.display='';
   } else { document.getElementById('budgetNote').style.display='none'; }
+  lastGrand=grand;
   renderConfidence(sub);
+  tcoCalc();
   persistLight();
+}
+
+// ---- total cost of ownership: upfront hardware + N years of electricity ----
+let lastGrand=0;
+function tcoCalc(){
+  const years=val('tcoYears')||4, util=Math.max(0,Math.min(1,(val('tcoUtil')||0)/100)), rate=val('tcoRate')||0, loadW=val('tcoLoad')||0;
+  const hw=document.getElementById('tcoHw'); if(!hw) return;
+  hw.textContent=money(lastGrand);
+  const blanks=['tcoAvg','tcoEnergy','tcoTotal','tcoMonth'];
+  if(loadW<=0){
+    blanks.forEach(id=>document.getElementById(id).textContent='—');
+    document.getElementById('tcoAvgCtx').textContent=''; document.getElementById('tcoEnergyCtx').textContent='';
+    document.getElementById('tcoNote').textContent='Add components with a power spec (GPUs, CPU) — or type a full-load draw — to estimate running cost.';
+    return;
+  }
+  const avgW = loadW*util + loadW*IDLE_FRAC*(1-util);     // busy when utilized, idle otherwise
+  const kwh  = avgW/1000*HRS_PER_YR*years;
+  const energy = kwh*rate;
+  const tco = lastGrand + energy;
+  document.getElementById('tcoAvgCtx').textContent='@ '+Math.round(util*100)+'% util';
+  document.getElementById('tcoAvg').textContent=Math.round(avgW)+' W';
+  document.getElementById('tcoEnergyCtx').textContent=Math.round(kwh).toLocaleString()+' kWh / '+years+' yr';
+  document.getElementById('tcoEnergy').textContent=money(Math.round(energy));
+  document.getElementById('tcoTotal').textContent=money(Math.round(tco));
+  document.getElementById('tcoMonth').textContent=money(Math.round(tco/(years*12)));
+  document.getElementById('tcoNote').textContent='Idle assumed '+Math.round(IDLE_FRAC*100)+'% of full load; '+HRS_PER_YR.toLocaleString()+' h/yr; wall draw adds '+PLATFORM_W+'W platform and divides by '+Math.round(PSU_EFF*100)+'% PSU efficiency. Default rate ≈ US national-average residential ($0.17/kWh) — edit for your utility.';
 }
 
 // ---- build-total confidence badge: sourced % / estimated % + estimated ± range ----
@@ -544,19 +625,24 @@ function renderConfidence(sub){
 
 // ===================== capability estimator =====================
 function deriveHw(){
-  let vram=0, ram=0, tflops=0, ngpu=0, bwMax=0;
+  let vram=0, ram=0, tflops=0, ngpu=0, bwMax=0, watts=0;
   bom.forEach(r=>{
     const q=r.qty||0;
     if(r.vram_gb){ vram+=r.vram_gb*q; ngpu+=q; if(r.bw_gbs) bwMax=Math.max(bwMax,r.bw_gbs); }
     if(r.tflops) tflops+=r.tflops*q;
     if(r.ram_gb) ram+=r.ram_gb*q;
+    if(r.watts) watts+=r.watts*q;
   });
+  // full-load wall draw = (components + platform baseline) / PSU efficiency
+  const loadW = watts ? Math.round((watts+PLATFORM_W)/PSU_EFF) : 0;
   setIf('hwVram',vram); setIf('hwRam',ram); setIf('hwTflops',Math.round(tflops));
   setIf('hwNgpu',ngpu); setIf('hwBw',bwMax||0); setIf('hwSysBw',SYS_BW||0);
+  setIf('tcoLoad',loadW);
   capCalc();
+  tcoCalc();
 }
 function setIf(id,v){ const el=document.getElementById(id); if(el && el.dataset.auto!=='0'){ el.value=v; } }
-['hwVram','hwRam','hwBw','hwSysBw','hwNgpu','hwTflops'].forEach(id=>{
+['hwVram','hwRam','hwBw','hwSysBw','hwNgpu','hwTflops','tcoLoad'].forEach(id=>{
   const el=document.getElementById(id);
   if(el) el.addEventListener('input',()=>{ el.dataset.auto='0'; });
 });
@@ -567,13 +653,14 @@ function capCalc(){
   const vram=val('hwVram'), ram=val('hwRam'), perCardBw=val('hwBw'), sysBw=val('hwSysBw')||40, tflops=val('hwTflops');
   const ctxK=CTXVALS[parseInt(val('ctxSlider'))||0]||32;
   const kvf=parseFloat(document.getElementById('kvquant').value)||1;
+  const attn=document.getElementById('attn').value;
   const weights = m.total*bpw/8;
-  const kv = (m.kvk||0)*ctxK*kvf;          // KV cache GB at this context + quant
+  const kv = (m.kvk||0)*kvCtxEff(attn,ctxK)*kvf;   // KV at this context, quant, and attention type
   const resident = weights + kv;            // weights + KV is what must actually fit
   const gbtok = m.gbtok*(bpw/4.5);
   document.getElementById('ctxLabel').textContent = ctxLbl(ctxK);
   document.getElementById('capSize').textContent = weights.toFixed(0)+" GB @ Q"+(bpw|0);
-  document.getElementById('capKvCtx').textContent = "@ "+ctxLbl(ctxK);
+  document.getElementById('capKvCtx').textContent = "@ "+ctxLbl(ctxK)+(attnShort[attn]?" · "+attnShort[attn]:"");
   document.getElementById('capKv').textContent = (kv>=10?kv.toFixed(0):kv.toFixed(1))+" GB";
   document.getElementById('capTot').textContent = resident.toFixed(0)+" GB";
 

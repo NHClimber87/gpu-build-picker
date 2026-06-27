@@ -15,7 +15,7 @@ Usage:  python3 validate.py [catalog.json]
 import json, re, sys, os
 
 CATEGORIES = {"gpu", "cpu", "motherboard", "ram", "psu", "storage", "case", "accessory"}
-SPEC_VOCAB = {"vram_gb", "bw_gbs", "tflops", "ram_gb"}
+SPEC_VOCAB = {"vram_gb", "bw_gbs", "tflops", "ram_gb", "watts"}
 METHODS    = {"gpupoet", "manual", "hardcoded-estimate", "deal-as-bought", "crowdsource", "build-override"}
 CONF       = {"low", "medium", "high"}
 ID_RE      = re.compile(r"^[a-z0-9][a-z0-9-]*$")
