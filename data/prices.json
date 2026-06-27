@@ -1,0 +1,14 @@
+{
+  "updated": "2026-06-26",
+  "note": "Auto-cached GPU prices (lowest-average) from GPU Poet. Retailers block scraping; non-GPU parts keep their baked-in/flagged prices.",
+  "prices": {
+    "rtx-3090": 1126,
+    "rtx-3090-ti": 1542,
+    "rtx-5090": 3680
+  },
+  "sources": {
+    "rtx-3090": "https://gpupoet.com/gpu/learn/price/june-2026/nvidia-geforce-rtx-3090",
+    "rtx-3090-ti": "https://gpupoet.com/gpu/learn/price/june-2026/nvidia-geforce-rtx-3090-ti",
+    "rtx-5090": "https://gpupoet.com/gpu/learn/price/june-2026/nvidia-geforce-rtx-5090"
+  }
+}

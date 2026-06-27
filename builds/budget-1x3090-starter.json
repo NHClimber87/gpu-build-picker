@@ -1,14 +1,71 @@
 {
   "title": "Budget 1× RTX 3090 — Local LLM Starter",
   "subtitle": "24GB VRAM · the cheapest sane way into local LLMs · runs 27-35B models well, 70B quantized · prices a 2026-06-26 snapshot — edit / autofill to refresh",
-  "tax_pct": 8, "shipping": 0, "budget": 2200, "sys_bw_gbs": 96,
+  "tax_pct": 8,
+  "shipping": 0,
+  "budget": 2200,
+  "sys_bw_gbs": 96,
   "rows": [
-    {"name": "GPU", "spec": "RTX 3090 24GB (used). The value king for local AI. June-2026 market avg ~$1,050.", "qty": 1, "price": 1050, "url": "https://bestvaluegpu.com/history/new-and-used-rtx-3090-price-history-and-specs/", "flag": "used market — shop around", "vram_gb": 24, "bw_gbs": 936, "tflops": 71},
-    {"name": "CPU", "spec": "AMD Ryzen 7 7700 (Zen4, 8c/16t, AM5, 65W — efficient).", "qty": 1, "price": 270, "url": "https://www.newegg.com/amd-ryzen-7-7700-ryzen-7-7000-series-raphael-zen-4-socket-am5/p/N82E16819113786", "flag": "est — verify"},
-    {"name": "Motherboard", "spec": "B650 AM5 (PCIe 5.0 x16 slot; pick one with good VRM).", "qty": 1, "price": 150, "url": "https://www.newegg.com/p/pl?d=B650+motherboard+am5", "flag": "est — verify"},
-    {"name": "RAM", "spec": "64GB DDR5-6000 (2×32GB) — headroom for CPU offload of big-MoE experts.", "qty": 1, "price": 160, "url": "https://www.newegg.com/p/pl?d=64GB+DDR5+6000", "flag": "est — verify", "ram_gb": 64},
-    {"name": "PSU", "spec": "850W 80+ Gold (3090 spikes hard; don't go below 850W).", "qty": 1, "price": 110, "url": "https://www.newegg.com/p/pl?d=850W+80+plus+gold+psu", "flag": "est — verify"},
-    {"name": "NVMe", "spec": "2TB NVMe Gen4 (models are big).", "qty": 1, "price": 120, "url": "https://www.newegg.com/p/pl?d=2TB+nvme+gen4+ssd", "flag": "est — verify"},
-    {"name": "Case", "spec": "Mid-tower with clearance for a 3-slot 3090 + good airflow.", "qty": 1, "price": 80, "url": "https://www.newegg.com/p/pl?d=atx+mid+tower+case", "flag": "est — verify"}
+    {
+      "name": "GPU",
+      "spec": "RTX 3090 24GB (used). The value king for local AI. June-2026 market avg ~$1,050.",
+      "qty": 1,
+      "price": 1126,
+      "url": "https://bestvaluegpu.com/history/new-and-used-rtx-3090-price-history-and-specs/",
+      "flag": "used market — shop around",
+      "vram_gb": 24,
+      "bw_gbs": 936,
+      "tflops": 71,
+      "price_key": "rtx-3090"
+    },
+    {
+      "name": "CPU",
+      "spec": "AMD Ryzen 7 7700 (Zen4, 8c/16t, AM5, 65W — efficient).",
+      "qty": 1,
+      "price": 270,
+      "url": "https://www.newegg.com/amd-ryzen-7-7700-ryzen-7-7000-series-raphael-zen-4-socket-am5/p/N82E16819113786",
+      "flag": "est — verify"
+    },
+    {
+      "name": "Motherboard",
+      "spec": "B650 AM5 (PCIe 5.0 x16 slot; pick one with good VRM).",
+      "qty": 1,
+      "price": 150,
+      "url": "https://www.newegg.com/p/pl?d=B650+motherboard+am5",
+      "flag": "est — verify"
+    },
+    {
+      "name": "RAM",
+      "spec": "64GB DDR5-6000 (2×32GB) — headroom for CPU offload of big-MoE experts.",
+      "qty": 1,
+      "price": 160,
+      "url": "https://www.newegg.com/p/pl?d=64GB+DDR5+6000",
+      "flag": "est — verify",
+      "ram_gb": 64
+    },
+    {
+      "name": "PSU",
+      "spec": "850W 80+ Gold (3090 spikes hard; don't go below 850W).",
+      "qty": 1,
+      "price": 110,
+      "url": "https://www.newegg.com/p/pl?d=850W+80+plus+gold+psu",
+      "flag": "est — verify"
+    },
+    {
+      "name": "NVMe",
+      "spec": "2TB NVMe Gen4 (models are big).",
+      "qty": 1,
+      "price": 120,
+      "url": "https://www.newegg.com/p/pl?d=2TB+nvme+gen4+ssd",
+      "flag": "est — verify"
+    },
+    {
+      "name": "Case",
+      "spec": "Mid-tower with clearance for a 3-slot 3090 + good airflow.",
+      "qty": 1,
+      "price": 80,
+      "url": "https://www.newegg.com/p/pl?d=atx+mid+tower+case",
+      "flag": "est — verify"
+    }
   ]
 }

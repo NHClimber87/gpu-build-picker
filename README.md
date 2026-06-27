@@ -101,6 +101,17 @@ It fetches through a public CORS proxy (`r.jina.ai`, then `corsproxy.io`). **It 
 
 **These prices are a 2026-06-26 snapshot and will go stale — that's exactly what the editable fields + ⤓ autofill are for.** Headline parts (GPUs, CPUs) are live-sourced with a URL; supporting parts (board / RAM / PSU / case) are flagged `est — verify`. Open a picker, hit ⤓ on the parts you care about, done.
 
+## Auto-refreshed prices (weekly)
+
+Retailers (Newegg / Micro Center / Amazon) **block scraping** — direct fetches 403/429, so there's no honest way to live-scrape them. Instead, a weekly job pulls the **big movers (GPUs)** from a price-tracker that *does* serve data, and patches the builds:
+
+- [`scripts/update-prices.py`](scripts/update-prices.py) fetches GPU prices (lowest-average) and writes [`data/prices.json`](data/prices.json), then patches any build row that opted in via a `price_key`.
+- [`.github/workflows/update-prices.yml`](.github/workflows/update-prices.yml) runs it **every Monday on GitHub's runners** (no local machine needed), regenerates the pickers, and commits.
+- Opt-in is per row: a row only auto-updates if it has a `price_key` (e.g. `"rtx-3090"`). The 8×3090 server's GPU line has **no** key, so its $850 *deal* price is never overwritten by market price.
+- Non-GPU parts (CPU/RAM/board/PSU) aren't auto-priced — retailers block them and trackers don't cover them well — so those stay as flagged estimates you verify with the ⤓ button.
+
+Run it yourself anytime: `python3 scripts/update-prices.py && ./generate-all.sh`.
+
 ## Honesty rules (baked in)
 
 - **No fabricated prices.** A price is either sourced (with a URL) or left at `0`/flagged. The generator (`build.py`) never invents one, and the autofill refuses to guess.
