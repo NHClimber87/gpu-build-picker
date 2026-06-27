@@ -15,9 +15,22 @@ PCPartPicker is great until you're pricing *used 3090s on eBay*, *refurb EPYC on
 - lives in **one HTML file** you can keep in a repo / email / Syncthing,
 - keeps a **source URL on every line** so the price is auditable later,
 - does the **tax + shipping + "am I under budget" math** live,
-- and can **read a price straight off a product URL** when the store exposes it.
+- can **read a price straight off a product URL** when the store exposes it,
+- and **tells you what models the build will actually run, and how fast** — a built-in capability estimator.
 
-That's the whole thing. It's ~250 lines of vanilla JS.
+That's the whole thing. Vanilla JS, no dependencies.
+
+## 🧮 Capability estimator — "what will it run?"
+
+Every buyer's real question. The picker derives **total VRAM, system RAM, GPU memory bandwidth, and FP16 TFLOPS** from the parts, then you pick a **target model** (7B → 235B, dense or MoE) and a **quant** (Q4 → FP16) and it tells you:
+
+- **Does it fit?** — entirely in VRAM ✓ / spills to system RAM ◐ / won't fit ✗
+- **Estimated decode** (tokens/sec, single user) and **prefill** speed
+- A **0–100 capability score** with a one-line tier read
+
+The speed math is **memory-bandwidth-bound** — which is what actually governs LLM decode, not raw FLOPs — and **calibrated to measured single-RTX-3090 numbers** (27B ≈ 40, 35B-A3B ≈ 87, 70B ≈ 18, 120B-A12B ≈ 12 t/s). Spill-to-RAM correctly drags the estimate toward system-RAM bandwidth (the real wall for big-MoE on consumer boards). FLOPs drive the prefill estimate. The calibration constants are right there in the source — tune them to your own measurements.
+
+> These are **rough estimates**, labeled as such in-app. They're for "will a 4×3090 box run a 70B comfortably?" decisions, not benchmark claims.
 
 ## ▶ Try it live (no install)
 
