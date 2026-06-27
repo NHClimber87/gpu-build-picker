@@ -189,9 +189,9 @@ const DEFAULT_BOM = [
     "name": "CPU",
     "spec": "AMD Threadripper 7960X (Zen4, 24c/48t, sTR5). Quad-channel+ DDR5, 88 PCIe 5.0 lanes — real x16 to every GPU.",
     "qty": 1,
-    "price": 1400,
-    "url": "https://www.newegg.com/amd-ryzen-threadripper-7000-series-ryzen-threadripper-7960x-storm-peak-socket-str5-desktop-cpu-processor/p/N82E16819113804",
-    "flag": "avg ~$1,422 — varies"
+    "price": 1099,
+    "url": "https://www.microcenter.com/product/674310/amd-ryzen-threadripper-7960x-storm-peak-42ghz-24-core-str5-boxed-processor-heatsink-not-included",
+    "flag": "Micro Center $1,099 in-stock 2026-06"
   },
   {
     "name": "Motherboard",
@@ -202,12 +202,12 @@ const DEFAULT_BOM = [
     "flag": "est — verify"
   },
   {
-    "name": "RAM",
-    "spec": "256GB DDR5-5600 ECC RDIMM (4×64GB) — feeds CPU-offload of big-MoE experts.",
+    "name": "RAM (kit)",
+    "spec": "256GB DDR5-5600 ECC RDIMM kit (4×64GB) — feeds CPU-offload of big-MoE experts. ⚠ DDR5 server RDIMM is in a 2026 price crisis: a 256GB kit ranged ~$1.4k–$7k across listings. VERIFY a live kit before trusting this line.",
     "qty": 1,
-    "price": 1400,
-    "url": "https://www.newegg.com/p/pl?d=64GB+DDR5+ECC+RDIMM",
-    "flag": "est — verify",
+    "price": 2400,
+    "url": "https://www.neweggbusiness.com/product/product.aspx?item=9b-1x5-003z-01fm5",
+    "flag": "VOLATILE — verify ($1.4k–7k seen)",
     "ram_gb": 256
   },
   {
@@ -252,8 +252,12 @@ const MODELS = [
 ];
 
 function load(){
-  try{const s=localStorage.getItem(KEY); if(s){const o=JSON.parse(s); if(o&&o.rows){ if(o.taxPct!=null)setLater('taxPct',o.taxPct); if(o.ship!=null)setLater('shipAmt',o.ship); return o.rows;}}}catch(e){}
-  return JSON.parse(JSON.stringify(DEFAULT_BOM));
+  let rows=null;
+  try{const s=localStorage.getItem(KEY); if(s){const o=JSON.parse(s); if(o&&o.rows){ if(o.taxPct!=null)setLater('taxPct',o.taxPct); if(o.ship!=null)setLater('shipAmt',o.ship); rows=o.rows; }}}catch(e){}
+  if(!rows) rows=JSON.parse(JSON.stringify(DEFAULT_BOM));
+  // heal older saved carts: re-attach static hardware hints from the preset by index (price edits preserved)
+  rows.forEach((r,i)=>{ const d=DEFAULT_BOM[i]; if(d){ ['vram_gb','bw_gbs','tflops','ram_gb'].forEach(k=>{ if(d[k]!=null && r[k]==null) r[k]=d[k]; }); }});
+  return rows;
 }
 function setLater(id,v){ const el=document.getElementById(id); if(el)el.value=v; }
 function persist(){ localStorage.setItem(KEY, JSON.stringify({rows:bom, taxPct:val('taxPct'), ship:val('shipAmt')})); flash(); }

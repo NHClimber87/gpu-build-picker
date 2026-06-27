@@ -191,8 +191,12 @@ const MODELS = [
 ];
 
 function load(){
-  try{const s=localStorage.getItem(KEY); if(s){const o=JSON.parse(s); if(o&&o.rows){ if(o.taxPct!=null)setLater('taxPct',o.taxPct); if(o.ship!=null)setLater('shipAmt',o.ship); return o.rows;}}}catch(e){}
-  return JSON.parse(JSON.stringify(DEFAULT_BOM));
+  let rows=null;
+  try{const s=localStorage.getItem(KEY); if(s){const o=JSON.parse(s); if(o&&o.rows){ if(o.taxPct!=null)setLater('taxPct',o.taxPct); if(o.ship!=null)setLater('shipAmt',o.ship); rows=o.rows; }}}catch(e){}
+  if(!rows) rows=JSON.parse(JSON.stringify(DEFAULT_BOM));
+  // heal older saved carts: re-attach static hardware hints from the preset by index (price edits preserved)
+  rows.forEach((r,i)=>{ const d=DEFAULT_BOM[i]; if(d){ ['vram_gb','bw_gbs','tflops','ram_gb'].forEach(k=>{ if(d[k]!=null && r[k]==null) r[k]=d[k]; }); }});
+  return rows;
 }
 function setLater(id,v){ const el=document.getElementById(id); if(el)el.value=v; }
 function persist(){ localStorage.setItem(KEY, JSON.stringify({rows:bom, taxPct:val('taxPct'), ship:val('shipAmt')})); flash(); }
