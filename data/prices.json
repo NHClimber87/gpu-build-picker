@@ -1,8 +1,8 @@
 {
-  "updated": "2026-06-26",
+  "updated": "2026-06-29",
   "note": "Cron cache of gpupoet GPU prices. catalog.json is the source of truth; this is a log.",
   "prices": {
-    "gpu-rtx3090": 1126,
+    "gpu-rtx3090": 1132,
     "gpu-rtx3090-ti": 1845,
     "gpu-rtx5090": 3658
   },

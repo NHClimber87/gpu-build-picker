@@ -17,12 +17,12 @@
       },
       "note": "Used market — varies; shop around.",
       "price": {
-        "value": 1126,
+        "value": 1132,
         "estimated": false,
         "sources": [
           {
             "url": "https://gpupoet.com/gpu/learn/price/june-2026/nvidia-geforce-rtx-3090",
-            "value": 1126,
+            "value": 1132,
             "sourced_at": "2026-06-01",
             "method": "gpupoet",
             "confidence": "medium"
@@ -46,6 +46,10 @@
           {
             "week": "2026-06-26",
             "value": 1126
+          },
+          {
+            "week": "2026-06-29",
+            "value": 1132
           }
         ]
       }
@@ -84,6 +88,10 @@
         "history": [
           {
             "week": "2026-06-26",
+            "value": 1845
+          },
+          {
+            "week": "2026-06-29",
             "value": 1845
           }
         ]
@@ -148,6 +156,10 @@
         "history": [
           {
             "week": "2026-06-26",
+            "value": 3658
+          },
+          {
+            "week": "2026-06-29",
             "value": 3658
           }
         ]
